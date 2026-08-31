@@ -1,0 +1,307 @@
+/* =========================================================================
+   KGROUP — Section Formation
+   -------------------------------------------------------------------------
+   Styles propres à formation.html. Tout est bâti sur les tokens de style.css
+   (--brand, --surface, --ink, --line…), donc le thème sombre et le thème clair
+   suivent automatiquement, sans une seule couleur codée en dur.
+   Préfixe `kt-` (Kgroup Training) pour ne rien heurter du design system.
+   ========================================================================= */
+
+/* ---------- Badges de réussite ------------------------------------------ */
+.kt-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.kt-badge {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  /* Un badge non obtenu reste visible mais éteint : on voit ce qu'il reste
+     à décrocher, ce qui vaut mieux qu'un emplacement vide. */
+  opacity: .45;
+  filter: grayscale(1);
+  transition: all var(--dur) var(--ease);
+}
+.kt-badge.on {
+  opacity: 1; filter: none;
+  border-color: var(--brand-300);
+  background: var(--brand-50);
+  box-shadow: var(--sh-xs);
+}
+.kt-badge-e { font-size: 20px; line-height: 1; }
+.kt-badge-n { font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.kt-badge.on .kt-badge-n { color: var(--brand-600); }
+
+/* ---------- Barre de progression ---------------------------------------- */
+.kt-bar {
+  height: 10px; border-radius: var(--r-pill);
+  background: var(--line-2); overflow: hidden;
+}
+.kt-bar > span {
+  display: block; height: 100%;
+  border-radius: var(--r-pill);
+  background: linear-gradient(90deg, var(--brand-400), var(--brand));
+  transition: width .6s var(--ease-out);
+}
+
+.kt-stat {
+  text-align: center; padding: 0 18px;
+  border-left: 1px solid var(--line);
+}
+.kt-stat b { display: block; font-family: var(--font-display); font-size: 20px; }
+.kt-stat span { font-size: 12px; color: var(--muted); }
+
+.kt-graduate {
+  margin-top: 16px; padding: 14px 18px;
+  border-radius: var(--r-md);
+  background: var(--brand-50);
+  border: 1px dashed var(--brand-300);
+  color: var(--brand-600);
+  font-size: 13.5px;
+}
+
+/* ---------- En-tête d'une journée --------------------------------------- */
+.kt-day-head {
+  display: flex; align-items: flex-start; gap: 16px;
+  flex-wrap: wrap; margin-bottom: 18px;
+}
+.kt-day-icon {
+  width: 52px; height: 52px; flex: none;
+  display: grid; place-items: center;
+  font-size: 26px;
+  border-radius: var(--r-md);
+  background: var(--brand-50);
+  border: 1px solid var(--brand-100);
+}
+.kt-day-n {
+  font-size: 11px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--brand);
+}
+.kt-day-head h3 { font-family: var(--font-display); font-size: 19px; margin: 2px 0 0; }
+.kt-day-meta { text-align: right; }
+
+.kt-chip {
+  display: inline-block; padding: 4px 11px;
+  border-radius: var(--r-pill);
+  font-size: 12px; font-weight: 600;
+  background: var(--surface-2); color: var(--muted);
+  border: 1px solid var(--line);
+}
+.kt-chip.ok { background: var(--brand-50); color: var(--brand-600); border-color: var(--brand-300); }
+.kt-chip.ko { background: rgba(226, 76, 75, .12); color: #C43535; border-color: rgba(226, 76, 75, .3); }
+
+/* ---------- Leçons (accordéon) ------------------------------------------ */
+.kt-lessons { display: flex; flex-direction: column; gap: 8px; }
+
+.kt-lesson {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  overflow: hidden;
+  transition: border-color var(--dur) var(--ease);
+}
+.kt-lesson[open] { border-color: var(--brand-300); }
+.kt-lesson.read { background: var(--surface-2); }
+
+.kt-lesson > summary {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px;
+  cursor: pointer; font-weight: 600; font-size: 14.5px;
+  list-style: none;
+}
+.kt-lesson > summary::-webkit-details-marker { display: none; }
+.kt-lesson > summary::after {
+  content: "▾"; color: var(--muted); font-size: 12px;
+  transition: transform var(--dur) var(--ease);
+}
+.kt-lesson[open] > summary::after { transform: rotate(180deg); }
+.kt-lesson > summary:hover { background: var(--brand-50); }
+
+.kt-lesson-n {
+  width: 26px; height: 26px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--line-2); color: var(--muted);
+  font-size: 12px; font-weight: 700;
+}
+.kt-lesson.read .kt-lesson-n { background: var(--brand); color: #fff; }
+
+.kt-lesson-body {
+  padding: 4px 18px 20px 54px;
+  font-size: 14px; line-height: 1.65; color: var(--ink-2);
+}
+.kt-lesson-body p { margin: 0 0 12px; }
+.kt-lesson-body b { color: var(--ink); }
+
+/* ---------- Blocs de contenu -------------------------------------------- */
+.kt-grid {
+  display: grid; gap: 12px; margin: 4px 0 16px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+.kt-card {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+.kt-card h5 {
+  font-family: var(--font-display); font-size: 14px;
+  margin: 0 0 6px; color: var(--ink);
+}
+.kt-card p { margin: 0; font-size: 13px; color: var(--muted); }
+.kt-card.kt-accent { background: var(--brand-50); border-color: var(--brand-100); }
+.kt-card.kt-bad { border-color: rgba(226, 76, 75, .28); }
+
+.kt-pills { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 14px; }
+.kt-pill {
+  padding: 6px 15px; border-radius: var(--r-pill);
+  background: var(--brand); color: #fff;
+  font-size: 12.5px; font-weight: 600;
+}
+
+.kt-quote {
+  margin: 14px 0; padding: 12px 18px;
+  border-left: 3px solid var(--brand);
+  background: var(--surface-2);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-style: italic; color: var(--ink-2);
+}
+.kt-quote small { display: block; margin-top: 6px; font-style: normal; color: var(--muted); }
+
+.kt-h5 {
+  font-family: var(--font-display); font-size: 13.5px;
+  margin: 16px 0 8px; color: var(--brand-600);
+}
+.kt-list { margin: 0 0 14px; padding-left: 20px; }
+.kt-list li { margin-bottom: 6px; }
+
+.kt-tip {
+  padding: 11px 15px; border-radius: var(--r-sm);
+  background: var(--brand-50); border: 1px solid var(--brand-100);
+  font-size: 13px; color: var(--ink-2);
+}
+.kt-tip-strong { border-style: dashed; border-color: var(--brand-300); }
+
+/* Les trois temps du parfum : les cercles concentriques du support, à plat. */
+.kt-notes { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 16px; }
+.kt-note {
+  position: relative; padding: 12px 16px 12px 20px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  border-left: 4px solid var(--brand);
+  /* Chaque strate est un peu plus soutenue que la précédente. */
+  opacity: calc(.55 + var(--d) * .15);
+}
+.kt-note b { font-family: var(--font-display); font-size: 14px; }
+.kt-note p { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+.kt-time {
+  float: right; font-size: 11.5px; font-weight: 600;
+  color: var(--brand-600); background: var(--brand-50);
+  padding: 2px 9px; border-radius: var(--r-pill);
+}
+
+.kt-steps { margin: 4px 0 12px; padding: 0; list-style: none; counter-reset: kt; }
+.kt-steps li {
+  counter-increment: kt;
+  position: relative; padding: 10px 0 10px 44px;
+  border-bottom: 1px solid var(--line);
+}
+.kt-steps li:last-child { border-bottom: 0; }
+.kt-steps li::before {
+  content: counter(kt);
+  position: absolute; left: 0; top: 9px;
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  border-radius: 50%; background: var(--brand); color: #fff;
+  font-size: 12.5px; font-weight: 700;
+}
+.kt-steps b { display: block; font-size: 14px; }
+.kt-steps span { font-size: 13px; color: var(--muted); }
+
+.kt-obj { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.kt-obj-row {
+  display: grid; gap: 6px; padding: 12px 16px;
+  border: 1px solid var(--line); border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+.kt-obj-q { font-weight: 700; font-size: 13.5px; }
+.kt-obj-a { font-size: 13.5px; color: var(--ink-2); }
+
+/* ---------- Appel au quiz ----------------------------------------------- */
+.kt-quiz-cta {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+  margin-top: 18px; padding: 16px 18px;
+  border-radius: var(--r-md);
+  background: var(--brand-50);
+  border: 1px dashed var(--brand-300);
+}
+
+/* ---------- Modal de quiz ----------------------------------------------- */
+.kt-modal { max-width: 680px; }
+.kt-question {
+  font-family: var(--font-display); font-size: 17px;
+  line-height: 1.45; margin: 0 0 18px;
+}
+.kt-choices { display: flex; flex-direction: column; gap: 10px; }
+.kt-choice {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px; cursor: pointer;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 14.5px;
+  transition: all var(--dur) var(--ease);
+}
+.kt-choice:hover { border-color: var(--brand-300); background: var(--brand-50); }
+.kt-choice.sel { border-color: var(--brand); background: var(--brand-50); font-weight: 600; }
+.kt-choice input { accent-color: var(--brand); width: 17px; height: 17px; flex: none; }
+
+/* ---------- Résultat ----------------------------------------------------- */
+.kt-result {
+  display: flex; gap: 16px; align-items: flex-start;
+  padding: 18px; margin-bottom: 20px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+}
+.kt-result.ok { background: var(--brand-50); border-color: var(--brand-300); }
+.kt-result.ko { background: rgba(226, 76, 75, .08); border-color: rgba(226, 76, 75, .3); }
+.kt-result-emoji { font-size: 34px; line-height: 1; }
+.kt-result h4 { font-family: var(--font-display); font-size: 17px; margin: 0 0 4px; }
+.kt-result p { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+.kt-result-note { margin-top: 6px !important; font-size: 12.5px !important; color: var(--muted) !important; }
+
+.kt-corrections { display: flex; flex-direction: column; gap: 10px; }
+.kt-corr {
+  padding: 12px 15px; border-radius: var(--r-sm);
+  border-left: 3px solid var(--line);
+  background: var(--surface-2); font-size: 13.5px;
+}
+.kt-corr.ok { border-left-color: var(--brand); }
+.kt-corr.ko { border-left-color: #C43535; }
+.kt-corr-q { font-weight: 600; margin-bottom: 5px; }
+.kt-corr-a { color: var(--brand-600); font-size: 13px; margin-bottom: 4px; }
+.kt-corr-w { color: var(--muted); font-size: 12.5px; line-height: 1.5; }
+
+/* ---------- Fil de notifications ---------------------------------------- */
+.kt-feed { display: flex; flex-direction: column; }
+.kt-feed-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 4px; border-bottom: 1px solid var(--line);
+}
+.kt-feed-row:last-child { border-bottom: 0; }
+.kt-feed-ico {
+  width: 38px; height: 38px; flex: none;
+  display: grid; place-items: center; font-size: 18px;
+  border-radius: 50%; background: var(--brand-50);
+}
+
+/* ---------- Responsive --------------------------------------------------- */
+@media (max-width: 720px) {
+  .kt-stat { border-left: 0; padding: 0 12px; }
+  .kt-day-meta { text-align: left; width: 100%; }
+  .kt-lesson-body { padding-left: 18px; }
+  .kt-quiz-cta { flex-direction: column; align-items: stretch; }
+  .kt-quiz-cta .btn { width: 100%; }
+}

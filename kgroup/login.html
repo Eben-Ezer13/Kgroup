@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in — KGROUP Sales Performance Platform</title>
+  <meta name="description" content="KGROUP Parfumery — Sales Performance Platform login." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpeg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="preloader"><div class="loader-ring"></div></div>
+
+  <main class="auth">
+    <!-- ============ LEFT: BRAND HERO / ILLUSTRATION ============ -->
+    <section class="auth-hero">
+      <div class="ah-top">
+        <div class="brand-line">
+          <span id="logoSlot"></span>
+          <div>
+            <strong>KGROUP PARFUMERY</strong>
+            <span>La senteur du luxe</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ah-mid">
+        <h2>The scent of <em>performance.</em></h2>
+        <p class="lead">Track every sale, motivate your team with gamified challenges, and lead the luxury fragrance market — all from one elegant dashboard.</p>
+        <div class="auth-stats">
+          <div class="as"><b>+38%</b><span>Sales growth</span></div>
+          <div class="as"><b>24</b><span>Active reps</span></div>
+          <div class="as"><b>4.9★</b><span>Team rating</span></div>
+        </div>
+      </div>
+
+      <div class="ah-bot">
+        <div class="auth-quote">
+          <p>“KGROUP transformed how our boutique team competes. Rankings and rewards made everyone a top performer.”</p>
+          <div class="qa-by">
+            <span class="avatar-fallback">SB</span>
+            <div>
+              <strong style="font-size:13.5px">Salma Benali</strong>
+              <div style="font-size:12px;opacity:.85">Regional Manager, Casablanca</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <svg class="bottle-float" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="50" y="6" width="20" height="22" rx="3" fill="rgba(255,255,255,.9)"/>
+        <ellipse cx="60" cy="34" rx="18" ry="9" fill="rgba(255,255,255,.85)"/>
+        <path d="M30 60c0-11 13-20 30-20s30 9 30 20v70c0 11-9 20-20 20H50c-11 0-20-9-20-20z" fill="rgba(255,255,255,.22)" stroke="rgba(255,255,255,.85)" stroke-width="2.5"/>
+        <text x="60" y="115" font-family="Sora, sans-serif" font-size="46" font-weight="800" fill="rgba(255,255,255,.9)" text-anchor="middle">K</text>
+      </svg>
+    </section>
+
+    <!-- ============ RIGHT: AUTH FORM ============ -->
+    <section class="auth-form-wrap">
+      <div class="auth-card glass card-pad">
+        <div class="ac-head">
+          <h3 id="formTitle">Welcome back 👋</h3>
+          <p id="formSub">Sign in to your KGROUP performance workspace.</p>
+        </div>
+
+        <form id="authForm" novalidate>
+          <!-- Name (sign-up only) -->
+          <div class="field hidden" id="nameField" style="margin-bottom:18px">
+            <label for="fullName">Full name</label>
+            <div class="input-icon">
+              <span id="userIco"></span>
+              <input class="input" type="text" id="fullName" placeholder="Sofia Benali" autocomplete="name">
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:18px">
+            <label for="email">Email address</label>
+            <div class="input-icon">
+              <span id="mailIco"></span>
+              <input class="input" type="email" id="email" placeholder="you@kgroup.ma" autocomplete="email" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="input-icon">
+              <span id="lockIco"></span>
+              <input class="input" type="password" id="password" placeholder="••••••••" autocomplete="current-password" required />
+              <button type="button" class="toggle-pass" id="togglePass" aria-label="Show password"></button>
+            </div>
+          </div>
+
+          <div class="auth-row" id="signinRow">
+            <label class="check">
+              <input type="checkbox" id="remember" checked />
+              <span class="box" id="checkIco"></span>
+              Remember me
+            </label>
+            <a href="#" class="link" id="forgotLink">Forgot password?</a>
+          </div>
+
+          <!-- Inline error / info message -->
+          <div id="formMsg" class="hidden" style="margin:4px 0 16px;padding:11px 14px;border-radius:12px;font-size:13px;font-weight:600"></div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="submitBtn">Sign in to dashboard</button>
+
+          <div class="divider">or continue with</div>
+          <div class="social-row">
+            <button type="button" class="btn btn-ghost" id="googleBtn">Google</button>
+            <button type="button" class="btn btn-ghost" id="ssoBtn">SSO</button>
+          </div>
+
+          <p style="text-align:center;margin-top:20px;font-size:13.5px" class="muted">
+            <span id="switchPrompt">New to KGROUP?</span>
+            <a href="#" class="link" id="switchMode">Create an account</a>
+          </p>
+
+          <div class="demo-hint hidden" id="demoHint">
+            ⚙️ <b>Demo mode</b> — any credentials work. Start the API
+            (<b>npm start</b>) with a Neon <b>DATABASE_URL</b> to enable real accounts.
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="api.js"></script>
+  <script src="dashboard.js"></script>
+  <script>
+    // ---- Inject icons ----
+    document.getElementById("logoSlot").innerHTML = window.KG_LOGO;
+    document.getElementById("mailIco").innerHTML  = window.icon("mail");
+    document.getElementById("lockIco").innerHTML  = window.icon("lock");
+    document.getElementById("userIco").innerHTML  = window.icon("users");
+    document.getElementById("checkIco").innerHTML = window.icon("check");
+    document.getElementById("togglePass").innerHTML = window.icon("eye");
+    document.getElementById("googleBtn").insertAdjacentHTML("afterbegin",
+      '<svg viewBox="0 0 24 24" width="18" height="18" style="margin-right:2px">' +
+      '<path d="M22 12c0-.6-.05-1.2-.15-1.8H12v3.6h5.6a4.8 4.8 0 0 1-2.08 3.15v2.6h3.36C20.85 17.9 22 15.25 22 12z" fill="#4285F4"/>' +
+      '<path d="M12 22c2.7 0 4.96-.9 6.62-2.42l-3.36-2.6c-.93.62-2.12.98-3.26.98-2.5 0-4.62-1.69-5.38-3.96H3.16v2.68A10 10 0 0 0 12 22z" fill="#34A853"/>' +
+      '<path d="M6.62 13.99a6 6 0 0 1 0-3.83V7.48H3.16a10 10 0 0 0 0 9.04z" fill="#FBBC05"/>' +
+      '<path d="M12 5.4c1.47 0 2.79.51 3.82 1.5l2.85-2.85C16.95 2.42 14.7 1.5 12 1.5A10 10 0 0 0 3.16 7.48l3.46 2.68C7.38 7.9 9.5 5.4 12 5.4z" fill="#EA4335"/></svg>');
+
+    const $ = (id) => document.getElementById(id);
+    const A = window.KGAuth;
+    let mode = "signin"; // 'signin' | 'signup'
+
+    // Send an authenticated user to the right home for their role
+    async function goHome() {
+      const role = await A.role();
+      window.location.href = A.homeForRole(role);
+    }
+
+    // Show the demo banner (and prefill) only once we know the API is absent,
+    // then skip this page entirely if a session already exists.
+    (async () => {
+      if (!(await A.ready())) {
+        $("demoHint").classList.remove("hidden");
+        $("email").value = "admin@kgroup.ma";
+        $("password").value = "kgroup2026";
+      }
+      const u = await A.user();
+      if (u) { await goHome(); return; }
+      document.querySelector(".preloader")?.classList.add("done");
+    })();
+
+    function showMsg(type, text) {
+      const m = $("formMsg");
+      m.classList.remove("hidden");
+      const colors = {
+        error: ["rgba(226,76,75,.12)", "#C43535"],
+        info:  ["var(--brand-50)", "var(--brand-600)"],
+      };
+      const [bg, fg] = colors[type] || colors.info;
+      m.style.background = bg; m.style.color = fg; m.textContent = text;
+    }
+    function clearMsg() { $("formMsg").classList.add("hidden"); }
+
+    // ---- Toggle sign in / sign up ----
+    function setMode(next) {
+      mode = next; clearMsg();
+      const signup = mode === "signup";
+      $("nameField").classList.toggle("hidden", !signup);
+      $("signinRow").classList.toggle("hidden", signup);
+      $("formTitle").textContent = signup ? "Create your account ✨" : "Welcome back 👋";
+      $("formSub").textContent = signup ? "Create an admin workspace. Salespersons join via an invite link." : "Sign in to your KGROUP performance workspace.";
+      $("submitBtn").textContent = signup ? "Create account" : "Sign in to dashboard";
+      $("switchPrompt").textContent = signup ? "Already have an account?" : "New to KGROUP?";
+      $("switchMode").textContent = signup ? "Sign in" : "Create an account";
+      $("password").autocomplete = signup ? "new-password" : "current-password";
+    }
+    $("switchMode").addEventListener("click", (e) => { e.preventDefault(); setMode(mode === "signin" ? "signup" : "signin"); });
+
+    // ---- Password visibility ----
+    const pass = $("password");
+    $("togglePass").addEventListener("click", (e) => {
+      const showing = pass.type === "text";
+      pass.type = showing ? "password" : "text";
+      e.currentTarget.innerHTML = window.icon(showing ? "eye" : "eyeoff");
+    });
+
+    // ---- Submit (sign in OR sign up) ----
+    $("authForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearMsg();
+      const email = $("email").value.trim();
+      const password = $("password").value;
+      const name = $("fullName").value.trim();
+      if (!email || !password) { showMsg("error", "Please enter your email and password."); return; }
+      if (mode === "signup" && password.length < 6) { showMsg("error", "Password must be at least 6 characters."); return; }
+
+      const btn = $("submitBtn");
+      const label = btn.textContent;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loader-ring" style="width:18px;height:18px;border-width:2.5px"></span> Please wait…';
+
+      try {
+        if (mode === "signup") {
+          // Self sign-up on this page creates an ADMIN (team owner).
+          // Salespersons join through an invite link → register.html.
+          const res = await A.signUp(email, password, name || email.split("@")[0], { role: "admin" });
+          if (res && res.demo) { await goHome(); return; }
+          // If email confirmation is ON, there is no session yet
+          if (res && res.user && !res.session) {
+            btn.disabled = false; btn.textContent = label;
+            setMode("signin");
+            showMsg("info", "Account created! Check your inbox to confirm, then sign in.");
+            return;
+          }
+          window.toast("success", "Welcome to KGROUP", "Setting up your workspace…");
+          setTimeout(goHome, 700);
+        } else {
+          const res = await A.signIn(email, password);
+          if (res && res.demo) { await goHome(); return; }
+          window.toast("success", "Welcome back", "Loading your dashboard…");
+          setTimeout(goHome, 700);
+        }
+      } catch (err) {
+        btn.disabled = false; btn.textContent = label;
+        showMsg("error", err.message || "Authentication failed. Please try again.");
+      }
+    });
+
+    // ---- Google ----
+    $("googleBtn").addEventListener("click", async () => {
+      try {
+        const res = await A.signInWithGoogle();
+        if (res && res.demo) window.location.href = "dashboard.html";
+        // otherwise the browser is redirected to Google by the API
+      } catch (err) { showMsg("error", err.message || "Google sign-in failed."); }
+    });
+    $("ssoBtn").addEventListener("click", () => window.toast("info", "SSO", "Enterprise SSO is not enabled on this deployment."));
+
+    // ---- Forgot password ----
+    $("forgotLink").addEventListener("click", async (e) => {
+      e.preventDefault();
+      const email = $("email").value.trim();
+      if (!email) { showMsg("error", "Enter your email above first, then click “Forgot password”."); return; }
+      try {
+        const res = await A.resetPassword(email);
+        showMsg("info", res && res.demo
+          ? "Demo mode: start the API to send real reset emails."
+          : "Password reset link sent — check your inbox.");
+      } catch (err) { showMsg("error", err.message || "Could not send reset email."); }
+    });
+  </script>
+</body>
+</html>

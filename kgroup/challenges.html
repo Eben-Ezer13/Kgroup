@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Challenges — KGROUP Sales Performance Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpeg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-app data-page="challenges" data-title="Challenges" data-role="Administrator">
+
+  <div class="page-head reveal" style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <div>
+      <h2 data-i18n="head.challenges.t">Challenges 🚩</h2>
+      <p data-i18n="head.challenges.sub">Gamified competitions that keep your team hungry and motivated.</p>
+    </div>
+    <button class="btn btn-primary" data-modal-open="#newChallenge"><span data-ic="plus"></span> <span data-i18n="btn.createChallenge">Create Challenge</span></button>
+  </div>
+
+  <!-- Challenge cards -->
+  <div class="challenge-grid" id="challengeGrid"></div>
+
+  <!-- Rewards -->
+  <div id="rewards" style="margin-top:34px">
+    <div class="section-title reveal"><div><h3>🎁 Rewards &amp; Bonuses</h3><div class="sub">Monthly bonuses &amp; perks from your KGroup contract (Art. 4)</div></div></div>
+    <div class="grid grid-3" id="rewardsGrid"></div>
+  </div>
+
+  <!-- Leaderboard for current challenge -->
+  <div class="card card-pad reveal" style="margin-top:24px">
+    <div class="section-title"><div><h3>Challenge Leaderboard</h3><div class="sub">Top contributors this month</div></div></div>
+    <div class="rank-list" id="chBoard"></div>
+  </div>
+
+  <!-- New challenge modal -->
+  <div class="modal-overlay" id="newChallenge">
+    <div class="modal">
+      <div class="modal-head"><h3>Create Challenge</h3><button class="icon-btn" data-modal-close><span data-ic="x"></span></button></div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="field full"><label>Title <span class="req">*</span></label><input class="input" id="chTitle" placeholder="e.g. Autumn Rush"></div>
+          <div class="field full"><label>Description</label><textarea class="textarea" id="chDesc" placeholder="What's the goal?"></textarea></div>
+          <div class="field full"><label>Reward <span class="req">*</span></label><input class="input" id="chReward" placeholder="e.g. 600 DHS bonus + free perfume"></div>
+          <div class="field"><label>Target (units)</label><input class="input" id="chTarget" type="number" value="100"></div>
+          <div class="field"><label>Ends on</label><input class="input" id="chEnds" type="date"></div>
+          <div class="field full"><label>Icon</label>
+            <select class="select" id="chIcon">
+              <option value="🏆">🏆 Trophy</option><option value="💎">💎 Diamond</option>
+              <option value="⚡">⚡ Speed</option><option value="🌟">🌟 Star</option>
+              <option value="🤝">🤝 Team</option><option value="🎯">🎯 Target</option>
+              <option value="🔥">🔥 Fire</option><option value="👑">👑 Crown</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-modal-close>Cancel</button>
+        <button class="btn btn-primary" id="createCh">Launch challenge</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="api.js"></script>
+  <script src="dashboard.js"></script>
+  <script>
+    window.KGPage = function ({ icon, avatar, toast }) {
+      const KG = window.KG;
+      document.querySelectorAll("[data-ic]").forEach(el => el.innerHTML = icon(el.dataset.ic));
+
+      // Challenge cards (empty state when the admin hasn't created any yet)
+      const grid = document.getElementById("challengeGrid");
+      if (!KG.challenges.length) {
+        grid.innerHTML = `<div class="card card-pad reveal" style="grid-column:1/-1;text-align:center;padding:48px">
+          <div style="font-size:40px;margin-bottom:10px">🚩</div>
+          <h3 style="margin-bottom:6px">No challenges yet</h3>
+          <p class="muted" style="margin-bottom:18px">Create your first competition to motivate the team.</p>
+          <button class="btn btn-primary" data-modal-open="#newChallenge" style="display:inline-flex">Create a challenge</button>
+        </div>`;
+        grid.querySelector("[data-modal-open]").addEventListener("click", () => window.kgModal.open("#newChallenge"));
+      } else
+      grid.innerHTML = KG.challenges.map(c => {
+        const pct = Math.min(100, Math.round(c.current/c.target*100));
+        const parts = KG.salespersons.slice(0, Math.min(4, c.participants));
+        const avatars = parts.map(p=>avatar(p,28)).join("") +
+          (c.participants>4?`<span class="more">+${c.participants-4}</span>`:"");
+        return `<div class="card challenge glass hover-lift reveal">
+          <div class="ch-top">
+            <div class="ch-ico" style="background:${c.hue}">${c.icon}</div>
+            <div class="countdown">
+              <div class="cd"><b>${String(c.daysLeft).padStart(2,'0')}</b><span>Days</span></div>
+              <div class="cd"><b>${String(c.hrsLeft).padStart(2,'0')}</b><span>Hrs</span></div>
+            </div>
+          </div>
+          <div><h4>${c.title}</h4><p class="ch-desc">${c.desc}</p></div>
+          <div class="ch-reward">${icon("gift")} ${c.reward}</div>
+          <div>
+            <div class="ch-meta" style="margin-bottom:6px"><span>${c.current} / ${c.target} units</span><b style="color:var(--brand)">${pct}%</b></div>
+            <div class="progress-bar"><i data-bar="${pct}" style="width:0"></i></div>
+          </div>
+          <div class="ch-meta">
+            <div class="ch-parts">${avatars}</div>
+            <button class="btn btn-soft btn-sm" data-join="${c.id}">Join</button>
+          </div>
+        </div>`;
+      }).join("");
+      window.animateBars();
+
+      document.querySelectorAll("[data-join]").forEach(b => b.addEventListener("click", () =>
+        toast("success","Challenge joined","You're now competing. Good luck! 🔥")));
+
+      // Rewards catalogue — real monthly bonuses & perks from the KGroup contract (Art. 4)
+      const bonuses = (KG.contract && KG.contract.bonuses) || [];
+      const rewards = bonuses.map(b => ({
+        emoji:"💰", name:`Bonus — ${b.sales} sales`, detail:`${KG.fmt.money(b.bonus)} + ${b.extra}`, tag:`${b.sales} sales/month`
+      })).concat([
+        { emoji:"🏷️", name:"Code Promo", detail:"Discount code for your client", tag:"Perk" },
+        { emoji:"🎁", name:"Parfum Offert", detail:"Free perfume gift", tag:"Perk" },
+        { emoji:"👑", name:"Top 3 Recognition", detail:"Elite badge + spotlight", tag:"Prestige" },
+      ]);
+      document.getElementById("rewardsGrid").innerHTML = rewards.map(r=>`
+        <div class="card card-pad hover-lift reveal" style="text-align:center">
+          <div style="font-size:44px;margin-bottom:10px">${r.emoji}</div>
+          <h4 style="font-size:16px">${r.name}</h4>
+          <div class="badge green" style="margin:8px 0">${r.tag}</div>
+          <div class="muted" style="font-size:13px;margin-bottom:14px">${r.detail}</div>
+          <button class="btn btn-ghost btn-block btn-sm" data-info="${r.name}">How to earn</button>
+        </div>`).join("");
+      document.querySelectorAll("[data-info]").forEach(b=>b.addEventListener("click",()=>
+        toast("info","Bonus rule",`"${b.dataset.info}" is credited at month-end, per your KGroup contract.`)));
+
+      // Challenge leaderboard
+      document.getElementById("chBoard").innerHTML = KG.salespersons.slice(0,6).map((s,i)=>{
+        const contrib = Math.round(187 * (0.28 - i*0.035));
+        return `<div class="rank-row">
+          <div class="rank-pos ${i<3?'top'+(i+1):''}">${i+1}</div>${avatar(s,42)}
+          <div><div class="rank-name">${s.name}</div><div class="rank-sub">${s.city}</div></div>
+          <div class="rank-val"><b>${contrib} units</b></div></div>`;
+      }).join("");
+
+      document.getElementById("createCh").addEventListener("click", async (e)=>{
+        const title = document.getElementById("chTitle").value.trim();
+        const reward = document.getElementById("chReward").value.trim();
+        if (!title)  { toast("error","Missing title","Give your challenge a title."); return; }
+        if (!reward) { toast("error","Missing reward","Tell your team what they'll win."); return; }
+        const ch = {
+          title,
+          description: document.getElementById("chDesc").value.trim() || null,
+          reward,
+          target: parseInt(document.getElementById("chTarget").value, 10) || 100,
+          ends: document.getElementById("chEnds").value || null,
+          icon: document.getElementById("chIcon").value || "🏆",
+        };
+        try {
+          if (window.KGDB) { e.target.disabled = true; await window.KGDB.addChallenge(ch); }
+        } catch (err) {
+          e.target.disabled = false; toast("error","Could not save", err.message || "Please try again."); return;
+        }
+        e.target.disabled = false;
+        window.kgModal.close(document.getElementById("newChallenge"));
+        toast("success","Challenge launched","Your team has been notified. 🚀");
+        if (window.KG_API_CONFIGURED) setTimeout(()=>location.reload(), 900);
+      });
+    };
+  </script>
+</body>
+</html>

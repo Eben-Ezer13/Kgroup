@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salespersons — KGROUP Sales Performance Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpeg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-app data-admin-only data-page="salespersons" data-title="Salespersons" data-role="Administrator">
+
+  <div class="page-head reveal" style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <div>
+      <h2 data-i18n="head.salespersons.t">Salespersons</h2>
+      <p><span data-i18n="head.salespersons.sub">Manage your luxury fragrance sales team</span> — <span id="repCount">0</span></p>
+    </div>
+    <button class="btn btn-primary" data-modal-open="#addModal"><span data-ic="plus"></span> <span data-i18n="btn.addSalesperson">Add Salesperson</span></button>
+  </div>
+
+  <!-- Toolbar: search + filters -->
+  <div class="table-tools reveal">
+    <div class="search-box" style="min-width:260px;display:flex">
+      <span data-ic="search"></span>
+      <input type="text" id="repSearch" placeholder="Search by name, city, phone…">
+    </div>
+    <div class="grow"></div>
+    <button class="chip on" data-filter="all">All</button>
+    <button class="chip" data-filter="Active">Active</button>
+    <button class="chip" data-filter="Inactive">Inactive</button>
+    <select class="chip" id="cityFilter" style="padding-right:12px"><option value="">All cities</option></select>
+  </div>
+
+  <!-- Table -->
+  <div class="card table-card reveal" data-searchable>
+    <div class="table-scroll">
+      <table class="data" id="repTable">
+        <thead>
+          <tr>
+            <th class="sortable" data-key="name">Salesperson <span class="sort-ico" data-ic="sort"></span></th>
+            <th class="sortable" data-key="city">City <span class="sort-ico" data-ic="sort"></span></th>
+            <th>Phone</th>
+            <th class="sortable" data-key="sales">Sales <span class="sort-ico" data-ic="sort"></span></th>
+            <th class="sortable" data-key="revenue">Revenue <span class="sort-ico" data-ic="sort"></span></th>
+            <th>Status</th>
+            <th class="sortable" data-key="rank">Rank <span class="sort-ico" data-ic="sort"></span></th>
+            <th style="text-align:right">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="repBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="repPager"></div>
+  </div>
+
+  <!-- Add modal -->
+  <div class="modal-overlay" id="addModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Add Salesperson</h3>
+        <button class="icon-btn" data-modal-close><span data-ic="x"></span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="field"><label>Full name <span class="req">*</span></label><input class="input" id="newName" placeholder="e.g. Sofia Benali"></div>
+          <div class="field"><label>City</label><input class="input" id="newCity" placeholder="Casablanca"></div>
+          <div class="field"><label>Phone</label><input class="input" id="newPhone" placeholder="+212 6…"></div>
+          <div class="field"><label>Email</label><input class="input" id="newEmail" type="email" placeholder="name@kgroup.ma"></div>
+          <div class="field full"><label>Starting level</label>
+            <select class="select" id="newLevel"><option>Rookie</option><option>Bronze</option><option>Silver</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-modal-close>Cancel</button>
+        <button class="btn btn-primary" id="saveRep">Save salesperson</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View modal -->
+  <div class="modal-overlay" id="viewModal">
+    <div class="modal">
+      <div class="modal-head"><h3>Salesperson Profile</h3><button class="icon-btn" data-modal-close><span data-ic="x"></span></button></div>
+      <div class="modal-body" id="viewBody"></div>
+      <div class="modal-foot"><button class="btn btn-ghost" data-modal-close>Close</button><a href="salesperson.html" class="btn btn-primary">Open dashboard</a></div>
+    </div>
+  </div>
+
+  <!-- Delete confirmation modal -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal" style="max-width:420px">
+      <div class="modal-head"><h3>Remove salesperson?</h3><button class="icon-btn" data-modal-close><span data-ic="x"></span></button></div>
+      <div class="modal-body">
+        <p class="muted">You're about to permanently remove <b id="delName">this salesperson</b> from your team.
+        Their recorded sales stay in the history but are unlinked. This can't be undone.</p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-modal-close>Cancel</button>
+        <button class="btn btn-danger" id="confirmDelete"><span data-ic="trash"></span> Remove</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invite link modal (shown after adding a rep) -->
+  <div class="modal-overlay" id="inviteModal">
+    <div class="modal">
+      <div class="modal-head"><h3>Invite link ready 🎉</h3><button class="icon-btn" id="inviteX"><span data-ic="x"></span></button></div>
+      <div class="modal-body">
+        <p class="muted" style="font-size:13.5px;margin-bottom:16px">
+          Share this link with <b id="inviteFor">your salesperson</b>. They'll set a password and
+          join your team automatically — no manual account setup needed.
+        </p>
+        <div class="field">
+          <label>Personal invite link</label>
+          <div class="row gap-2">
+            <input class="input" id="inviteLink" readonly style="font-size:13px">
+            <button class="btn btn-primary" id="copyInvite" type="button" style="flex-shrink:0"><span data-ic="check"></span> Copy</button>
+          </div>
+          <div class="hint">Single-use — it stops working once they sign up.</div>
+        </div>
+      </div>
+      <div class="modal-foot"><button class="btn btn-primary" id="inviteDone">Done</button></div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="api.js"></script>
+  <script src="dashboard.js"></script>
+  <script>
+    window.KGPage = function ({ icon, avatar, toast, KGTable }) {
+      const KG = window.KG;
+      document.querySelectorAll("[data-ic]").forEach(el => el.innerHTML = icon(el.dataset.ic));
+      document.getElementById("repCount").textContent = KG.salespersons.length;
+
+      // City filter options
+      const cf = document.getElementById("cityFilter");
+      KG.cities.forEach(c => cf.insertAdjacentHTML("beforeend", `<option value="${c}">${c}</option>`));
+
+      const statusBadge = (s) => s === "Active"
+        ? '<span class="badge green"><span class="dot on"></span>Active</span>'
+        : '<span class="badge gray"><span class="dot off"></span>Inactive</span>';
+
+      const rankTag = (r) => r <= 3
+        ? `<span class="badge gold">🏅 #${r}</span>`
+        : `<span class="badge gray">#${r}</span>`;
+
+      const renderRow = (s) => `
+        <tr data-id="${s.id}">
+          <td><div class="cell-user">${avatar(s,38)}
+            <div><div class="cu-name">${s.name}</div><div class="cu-sub">${s.level} • ${s.xp} XP</div></div></div></td>
+          <td>${s.city}</td>
+          <td class="muted">${s.phone}</td>
+          <td><b>${s.sales}</b></td>
+          <td><b>${KG.fmt.moneyShort(s.revenue)}</b></td>
+          <td>${s.invite_code ? '<span class="badge gold">⏳ Invite pending</span>' : statusBadge(s.status)}</td>
+          <td>${rankTag(s.rank)}</td>
+          <td><div class="row-actions" style="justify-content:flex-end">
+            ${s.invite_code ? `<button class="icon-btn" data-invite="${s.id}" title="Copy invite link" style="color:var(--brand);border-color:var(--brand-300)">${icon("link")}</button>` : ""}
+            <button class="icon-btn" data-view="${s.id}" title="View">${icon("eye")}</button>
+            <button class="icon-btn" data-edit="${s.id}" title="Edit">${icon("edit")}</button>
+            <button class="icon-btn" data-del="${s.id}" title="Remove">${icon("trash")}</button>
+          </div></td>
+        </tr>`;
+
+      const table = KGTable({
+        mount: document.getElementById("repTable"),
+        tbody: document.getElementById("repBody"),
+        pager: "#repPager",
+        rows: KG.salespersons,
+        perPage: 8,
+        sortable: true,
+        render: renderRow,
+        onDraw: wireRowActions,
+      });
+
+      // Combined filter state
+      let statusFilter = "all", cityVal = "", searchQ = "";
+      function applyFilters() {
+        table.setFilter(s =>
+          (statusFilter === "all" || s.status === statusFilter) &&
+          (cityVal === "" || s.city === cityVal) &&
+          (searchQ === "" || (s.name+s.city+s.phone+s.email).toLowerCase().includes(searchQ))
+        );
+      }
+      document.querySelectorAll("[data-filter]").forEach(b => b.addEventListener("click", () => {
+        document.querySelectorAll("[data-filter]").forEach(x=>x.classList.remove("on"));
+        b.classList.add("on"); statusFilter = b.dataset.filter; applyFilters();
+      }));
+      cf.addEventListener("change", () => { cityVal = cf.value; applyFilters(); });
+      document.getElementById("repSearch").addEventListener("input", e => { searchQ = e.target.value.toLowerCase(); applyFilters(); });
+
+      function wireRowActions() {
+        // Copy invite link for reps who haven't signed up yet
+        document.querySelectorAll("[data-invite]").forEach(b => b.addEventListener("click", () => {
+          const s = KG.salespersons.find(x => x.id === b.dataset.invite);
+          if (s && s.invite_code) showInvite(s.name, s.invite_code, false);
+        }));
+        document.querySelectorAll("[data-view]").forEach(b => b.addEventListener("click", () => {
+          const s = KG.salespersons.find(x=>x.id===b.dataset.view);
+          document.getElementById("viewBody").innerHTML = `
+            <div class="row gap-4" style="margin-bottom:18px">${avatar(s,64)}
+              <div><h3 style="font-size:20px">${s.name}</h3><div class="muted">${s.email}</div>
+              <div style="margin-top:6px">${rankTag(s.rank)} <span class="badge green">${s.level}</span></div></div></div>
+            <div class="grid grid-2" style="gap:12px">
+              <div class="card card-pad"><div class="muted" style="font-size:12px">Total sales</div><b style="font-family:var(--font-display);font-size:20px">${s.sales}</b></div>
+              <div class="card card-pad"><div class="muted" style="font-size:12px">Revenue</div><b style="font-family:var(--font-display);font-size:20px">${KG.fmt.moneyShort(s.revenue)}</b></div>
+              <div class="card card-pad"><div class="muted" style="font-size:12px">City</div><b>${s.city}</b></div>
+              <div class="card card-pad"><div class="muted" style="font-size:12px">Phone</div><b>${s.phone}</b></div>
+            </div>`;
+          window.kgModal.open("#viewModal");
+        }));
+        document.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () =>
+          toast("info","Edit salesperson","Editing is available when a backend is connected.")));
+        document.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => {
+          const s = KG.salespersons.find(x => x.id === b.dataset.del);
+          if (s) askDelete(s);
+        }));
+      }
+
+      let inviteReload = false;
+      function buildInviteLink(code) {
+        return location.href.replace(/[^/]*(\?.*)?$/, "") + "register.html?invite=" + encodeURIComponent(code);
+      }
+      function showInvite(name, code, reloadAfter) {
+        inviteReload = !!reloadAfter;
+        document.getElementById("inviteFor").textContent = name;
+        document.getElementById("inviteLink").value = buildInviteLink(code);
+        window.kgModal.open("#inviteModal");
+      }
+      // Copy / done actions for the invite modal
+      document.getElementById("copyInvite").addEventListener("click", async () => {
+        const val = document.getElementById("inviteLink").value;
+        try { await navigator.clipboard.writeText(val); } catch (_) {
+          const el = document.getElementById("inviteLink"); el.select(); document.execCommand("copy");
+        }
+        toast("success", "Copied", "Invite link copied to clipboard.");
+      });
+      function closeInvite() {
+        window.kgModal.close(document.getElementById("inviteModal"));
+        if (inviteReload && window.KG_API_CONFIGURED) location.reload(); // refresh roster only after adding
+      }
+      document.getElementById("inviteDone").addEventListener("click", closeInvite);
+      document.getElementById("inviteX").addEventListener("click", closeInvite);
+
+      // Delete flow (confirmation → real DB delete → refresh)
+      let pendingDel = null;
+      function askDelete(s) {
+        pendingDel = s;
+        document.getElementById("delName").textContent = s.name;
+        window.kgModal.open("#deleteModal");
+      }
+      document.getElementById("confirmDelete").addEventListener("click", async (e) => {
+        if (!pendingDel) return;
+        const s = pendingDel;
+        try {
+          if (window.KGDB) { e.target.disabled = true; await window.KGDB.deleteSalesperson(s.id); }
+        } catch (err) {
+          e.target.disabled = false; toast("error", "Could not remove", err.message || "Please try again."); return;
+        }
+        e.target.disabled = false;
+        window.kgModal.close(document.getElementById("deleteModal"));
+        toast("success", "Removed", `${s.name} has been removed from your team.`);
+        if (window.KG_API_CONFIGURED) {
+          setTimeout(() => location.reload(), 700); // refresh roster from the DB
+        } else {
+          const tr = document.querySelector(`tr[data-id="${s.id}"]`);
+          if (tr) { tr.style.transition = "opacity .3s"; tr.style.opacity = "0"; setTimeout(() => tr.remove(), 320); }
+        }
+        pendingDel = null;
+      });
+
+      document.getElementById("saveRep").addEventListener("click", async (e) => {
+        const name = document.getElementById("newName").value.trim();
+        if (!name) { toast("error","Missing name","Please enter the salesperson's full name."); return; }
+        const rep = {
+          name,
+          city:  document.getElementById("newCity").value.trim() || null,
+          phone: document.getElementById("newPhone").value.trim() || null,
+          email: document.getElementById("newEmail").value.trim() || null,
+          level: document.getElementById("newLevel").value,
+          hue:   Math.floor(Math.random() * 360),
+        };
+        let res = null;
+        try {
+          if (window.KGDB) { e.target.disabled = true; res = await window.KGDB.addSalesperson(rep); }
+        } catch (err) {
+          e.target.disabled = false;
+          toast("error","Could not save", err.message || "Please try again.");
+          return;
+        }
+        e.target.disabled = false;
+        window.kgModal.close(document.getElementById("addModal"));
+        toast("success","Salesperson added","Now share their invite link.");
+        // Reveal the shareable invite link so the rep can create their own login
+        const code = res && res.invite_code;
+        if (code) showInvite(name, code, true);
+        else if (window.KG_API_CONFIGURED) setTimeout(() => location.reload(), 900);
+      });
+    };
+  </script>
+</body>
+</html>

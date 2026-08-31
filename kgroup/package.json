@@ -1,0 +1,34 @@
+{
+  "name": "kgroup-platform",
+  "version": "2.0.0",
+  "private": true,
+  "description": "KGROUP Sales Performance Platform — static frontend + Node/Express API on Neon PostgreSQL",
+  "type": "commonjs",
+  "main": "server/index.js",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "build": "node scripts/build.js",
+    "lint": "node scripts/lint.js",
+    "test": "node --test \"tests/*.test.js\"",
+    "db:migrate": "node scripts/db-migrate.js",
+    "db:check": "node scripts/db-check.js",
+    "db:smoke": "node scripts/db-smoke.js",
+    "e2e:crm": "node scripts/e2e-crm.js",
+    "data:import": "node scripts/import-from-supabase.js",
+    "verify": "node scripts/verify-deploy.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.13.1",
+    "serverless-http": "^3.2.0"
+  }
+}

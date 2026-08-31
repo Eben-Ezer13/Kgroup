@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings — KGROUP Sales Performance Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpeg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-app data-page="settings" data-title="Settings" data-role="Administrator">
+
+  <div class="page-head reveal">
+    <h2>Settings</h2>
+    <p>Manage your profile, appearance and account.</p>
+  </div>
+
+  <div class="grid grid-2-1">
+    <div style="display:flex;flex-direction:column;gap:24px">
+
+      <!-- ===== PROFILE ===== -->
+      <div class="card card-pad reveal">
+        <div class="section-title"><div><h3>Profile</h3><div class="sub">How you appear across the platform</div></div></div>
+        <div class="row gap-4" style="margin-bottom:20px">
+          <span id="settingsAvatar"></span>
+          <div>
+            <div id="pName" style="font-family:var(--font-display);font-weight:700;font-size:17px">—</div>
+            <div class="muted" id="pEmail" style="font-size:13px">—</div>
+            <div style="margin-top:6px"><span class="badge green" id="pRole">—</span></div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label>Full name</label><input class="input" id="fName" placeholder="Your name"></div>
+          <div class="field"><label>City</label><input class="input" id="fCity" placeholder="Casablanca"></div>
+        </div>
+        <div class="row gap-3" style="margin-top:18px">
+          <button class="btn btn-primary" id="saveProfile"><span data-ic="check"></span> Save changes</button>
+        </div>
+      </div>
+
+      <!-- ===== APPEARANCE ===== -->
+      <div class="card card-pad reveal">
+        <div class="section-title"><div><h3>Appearance</h3><div class="sub">Theme &amp; language</div></div></div>
+
+        <label class="hint" style="display:block;margin-bottom:8px;font-weight:600">Theme</label>
+        <div class="seg" id="themeSeg" style="margin-bottom:20px">
+          <button data-theme-opt="light"><span data-ic="sun"></span> Light</button>
+          <button data-theme-opt="dark"><span data-ic="moon"></span> Dark</button>
+        </div>
+
+        <label class="hint" style="display:block;margin-bottom:8px;font-weight:600">Language</label>
+        <div class="seg" id="langSeg">
+          <button data-lang-opt="en">English</button>
+          <button data-lang-opt="fr">Français</button>
+        </div>
+      </div>
+
+      <!-- ===== SECURITY ===== -->
+      <div class="card card-pad reveal">
+        <div class="section-title"><div><h3>Security</h3><div class="sub">Password &amp; session</div></div></div>
+        <div class="form-grid">
+          <div class="field"><label>New password</label>
+            <input class="input" id="pass1" type="password" placeholder="At least 6 characters" autocomplete="new-password"></div>
+          <div class="field"><label>Confirm password</label>
+            <input class="input" id="pass2" type="password" placeholder="Repeat password" autocomplete="new-password"></div>
+        </div>
+        <div class="row gap-3" style="margin-top:18px">
+          <button class="btn btn-ghost" id="changePass"><span data-ic="lock"></span> Update password</button>
+          <div class="grow"></div>
+          <button class="btn btn-danger" id="signOut"><span data-ic="logout"></span> Sign out</button>
+        </div>
+        <div id="demoNote" class="demo-hint hidden" style="margin-top:16px">
+          ⚙️ Demo mode — start the API with a Neon DATABASE_URL (see MIGRATION-NEON.md) to save changes for real.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CONTRACT REFERENCE ===== -->
+    <div class="reveal">
+      <div class="card card-pad" style="position:sticky;top:96px">
+        <div class="section-title"><div><h3>Your Contract</h3><div class="sub">KGroup Parfumery terms</div></div></div>
+        <div id="contractBox" style="display:flex;flex-direction:column;gap:14px"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="api.js"></script>
+  <script src="dashboard.js"></script>
+  <script>
+    window.KGPage = function ({ icon, avatar, toast }) {
+      const KG = window.KG, me = KG.me || {};
+      const $ = (id) => document.getElementById(id);
+      document.querySelectorAll("[data-ic]").forEach(el => el.innerHTML = icon(el.dataset.ic));
+
+      // ---- Profile ----
+      $("settingsAvatar").innerHTML = avatar(me, 72);
+      $("pName").textContent  = me.name || "—";
+      $("pEmail").textContent = me.email || "—";
+      $("pRole").textContent  = (window.KG_ROLE === "salesperson") ? "Salesperson" : "Administrator";
+      $("fName").value = me.name || "";
+      $("fCity").value = me.city && me.city !== "—" ? me.city : "";
+
+      $("saveProfile").addEventListener("click", async (e) => {
+        const full_name = $("fName").value.trim();
+        if (!full_name) { toast("error", "Name required", "Please enter your name."); return; }
+        const fields = { full_name, city: $("fCity").value.trim() || null };
+        try {
+          if (window.KGDB) { e.target.disabled = true; await window.KGDB.updateProfile(fields); }
+        } catch (err) { e.target.disabled = false; toast("error", "Could not save", err.message || "Try again."); return; }
+        e.target.disabled = false;
+        $("pName").textContent = full_name;
+        toast("success", "Profile saved", window.KG_API_CONFIGURED ? "Your changes are stored." : "Saved (demo).");
+      });
+
+      // ---- Appearance: theme ----
+      function syncTheme() {
+        const cur = window.KGTheme.current();
+        document.querySelectorAll("[data-theme-opt]").forEach(b =>
+          b.classList.toggle("on", b.dataset.themeOpt === cur));
+      }
+      document.querySelectorAll("[data-theme-opt]").forEach(b =>
+        b.addEventListener("click", () => { window.KGTheme.apply(b.dataset.themeOpt); syncTheme(); }));
+      syncTheme();
+
+      // ---- Appearance: language ----
+      function syncLang() {
+        document.querySelectorAll("[data-lang-opt]").forEach(b =>
+          b.classList.toggle("on", b.dataset.langOpt === window.KGI18N.lang));
+      }
+      document.querySelectorAll("[data-lang-opt]").forEach(b =>
+        b.addEventListener("click", () => { window.KGI18N.set(b.dataset.langOpt); syncLang(); }));
+      syncLang();
+
+      // ---- Security ----
+      if (!window.KG_API_CONFIGURED) $("demoNote").classList.remove("hidden");
+      $("changePass").addEventListener("click", async (e) => {
+        const p1 = $("pass1").value, p2 = $("pass2").value;
+        if (p1.length < 6) { toast("error", "Too short", "Password must be at least 6 characters."); return; }
+        if (p1 !== p2) { toast("error", "Mismatch", "The two passwords don't match."); return; }
+        try {
+          if (window.KGAuth) { e.target.disabled = true; await window.KGAuth.updatePassword(p1); }
+        } catch (err) { e.target.disabled = false; toast("error", "Could not update", err.message || "Try again."); return; }
+        e.target.disabled = false; $("pass1").value = ""; $("pass2").value = "";
+        toast("success", "Password updated", window.KG_API_CONFIGURED ? "Use it next time you sign in." : "Saved (demo).");
+      });
+      $("signOut").addEventListener("click", async () => {
+        if (window.KGAuth) { try { await window.KGAuth.signOut(); } catch (_) {} }
+        window.location.href = "login.html";
+      });
+
+      // ---- Contract reference (from the KGroup contract) ----
+      const ct = KG.contract || {};
+      const row = (k, v) => `<div class="row"><span class="muted grow">${k}</span><b style="text-align:right">${v}</b></div>`;
+      const rates = KG.products.map(p => `${p.cat} → ${p.commission} DHS`).join(" · ");
+      const bonusRows = (ct.bonuses || []).map(b =>
+        `<div class="row" style="font-size:13px"><span class="grow">${b.sales} sales</span><b>${KG.fmt.money(b.bonus)}</b><span class="muted" style="font-size:11px;margin-left:8px">+ ${b.extra}</span></div>`).join("");
+      $("contractBox").innerHTML = `
+        ${row("Company", ct.company || "KGroup Parfumery")}
+        ${row("Represented by", ct.representedBy || "—")}
+        ${row("Contact", ct.phone || "—")}
+        <hr style="border:none;border-top:1px dashed var(--line)">
+        <div><div class="muted" style="font-size:12px;margin-bottom:6px">Commission per sale (Art. 3)</div>
+          <div style="font-size:13px;font-weight:600">${rates}</div></div>
+        <div><div class="muted" style="font-size:12px;margin:8px 0 6px">Monthly bonuses (Art. 4)</div>${bonusRows}</div>
+        <div><div class="muted" style="font-size:12px;margin:8px 0 6px">Payment methods (Art. 5)</div>
+          <div class="row gap-2" style="flex-wrap:wrap">${(ct.payments||[]).map(p=>`<span class="badge gray">${p}</span>`).join("")}</div></div>
+        <div class="hint" style="margin-top:6px">Termination notice: ${ct.noticeDays || 7} days (Art. 8)</div>`;
+    };
+  </script>
+</body>
+</html>

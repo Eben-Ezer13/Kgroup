@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reports — KGROUP Sales Performance Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpeg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-app data-admin-only data-page="reports" data-title="Reports" data-role="Administrator">
+
+  <div class="page-head reveal" style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <div>
+      <h2 data-i18n="head.reports.t">Reports &amp; Analytics</h2>
+      <p data-i18n="head.reports.sub">Deep-dive into KGROUP's performance and export polished reports.</p>
+    </div>
+    <div class="row gap-3 no-print">
+      <select class="chip" id="rangeSel" style="padding-right:12px">
+        <option>Last 12 months</option><option>This quarter</option><option>This month</option>
+      </select>
+      <button class="btn btn-ghost" id="printBtn"><span data-ic="print"></span> Print</button>
+      <button class="btn btn-primary" id="pdfBtn"><span data-ic="download"></span> Download PDF</button>
+    </div>
+  </div>
+
+  <!-- KPI strip -->
+  <div class="grid stat-grid reveal" style="margin-bottom:24px">
+    <div class="card report-kpi glass"><div class="rk-label">Total Revenue</div><div class="rk-val" data-count="0" data-money="1" data-suffix=" DHS" id="rRev">0</div><span class="trend up">▲ 8.9% vs last period</span></div>
+    <div class="card report-kpi glass"><div class="rk-label">Units Sold</div><div class="rk-val" data-count="0" id="rUnits">0</div><span class="trend up">▲ 12.4%</span></div>
+    <div class="card report-kpi glass"><div class="rk-label">Avg. Basket</div><div class="rk-val" data-count="0" data-suffix=" DHS" id="rBasket">0</div><span class="trend up">▲ 3.1%</span></div>
+    <div class="card report-kpi glass"><div class="rk-label">Conversion</div><div class="rk-val">68<span style="font-size:16px">%</span></div><span class="trend up">▲ 2.0%</span></div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid grid-2" style="margin-bottom:24px">
+    <div class="card card-pad reveal">
+      <div class="section-title"><div><h3>Revenue Trend</h3><div class="sub">Monthly revenue (K DHS)</div></div></div>
+      <div class="chart-wrap"><canvas id="revChart"></canvas></div>
+    </div>
+    <div class="card card-pad reveal">
+      <div class="section-title"><div><h3>Units by Month</h3><div class="sub">Volume distribution</div></div></div>
+      <div class="chart-wrap"><canvas id="unitChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid grid-1-2" style="margin-bottom:24px">
+    <div class="card card-pad reveal">
+      <div class="section-title"><div><h3>By Category</h3></div></div>
+      <div class="center"><canvas id="catChart" style="max-width:220px"></canvas></div>
+      <div id="catLegend" style="display:flex;flex-direction:column;gap:10px;margin-top:16px"></div>
+    </div>
+    <div class="card card-pad reveal">
+      <div class="section-title"><div><h3>Top Performers Breakdown</h3></div><a href="ranking.html" class="link">Full ranking</a></div>
+      <div class="table-scroll">
+        <table class="data">
+          <thead><tr><th>Rep</th><th>City</th><th>Units</th><th>Revenue</th><th>Share</th></tr></thead>
+          <tbody id="reportRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Downloads -->
+  <div class="card card-pad reveal no-print">
+    <div class="section-title"><div><h3>Export Center</h3><div class="sub">Download ready-made reports</div></div></div>
+    <div class="grid grid-3">
+      <button class="qa" data-dl="Sales Report (CSV)"><span class="qa-ico ico-green" data-ic="file"></span><strong>Sales Report</strong><span>CSV • 240 rows</span></button>
+      <button class="qa" data-dl="Team Performance (PDF)"><span class="qa-ico ico-blue" data-ic="download"></span><strong>Team Performance</strong><span>PDF • 12 pages</span></button>
+      <button class="qa" data-dl="Revenue Summary (XLSX)"><span class="qa-ico ico-gold" data-ic="chart"></span><strong>Revenue Summary</strong><span>XLSX • detailed</span></button>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="api.js"></script>
+  <script src="dashboard.js"></script>
+  <script>
+    window.KGPage = function ({ icon, toast, KGCharts }) {
+      const KG = window.KG;
+      document.querySelectorAll("[data-ic]").forEach(el => el.innerHTML = icon(el.dataset.ic));
+
+      // KPIs
+      document.getElementById("rRev").dataset.count = KG.kpis.totalRevenue;
+      document.getElementById("rUnits").dataset.count = KG.kpis.totalSales;
+      document.getElementById("rBasket").dataset.count = Math.round(KG.kpis.totalRevenue/KG.kpis.totalSales);
+      window.animateCounters();
+
+      function drawAll() {
+        KGCharts.lineChart(document.getElementById("revChart"), {
+          labels: KG.series.months, height: 260,
+          series: [{ values: KG.series.revenueSeries.map(v=>v/1000), color:"#0B7A4B", fill:"rgba(11,122,75,.18)" }]
+        });
+        KGCharts.barChart(document.getElementById("unitChart"), { values: KG.series.salesSeries, labels: KG.series.months, height: 260 });
+        // category donut
+        const cats = {};
+        KG.recentSales.forEach(s => { const p = KG.products.find(p=>p.name===s.product); cats[p?p.cat:"Other"]=(cats[p?p.cat:"Other"]||0)+s.qty; });
+        const palette=["#0B7A4B","#2563EB","#D89A28","#7C3AED","#E24C4B","#16965E"];
+        const segs = Object.entries(cats).map(([name,value],i)=>({name,value,color:palette[i%palette.length]}));
+        KGCharts.donutChart(document.getElementById("catChart"), segs);
+        document.getElementById("catLegend").innerHTML = segs.map(s=>`
+          <div class="row gap-2"><span style="width:12px;height:12px;border-radius:4px;background:${s.color}"></span>
+          <span style="font-weight:600;font-size:13.5px">${s.name}</span><span class="grow"></span>
+          <span class="muted">${s.value} units</span></div>`).join("");
+      }
+      drawAll();
+      window.addEventListener("kg:redraw", drawAll);
+
+      // Table
+      const totalRev = KG.kpis.totalRevenue;
+      document.getElementById("reportRows").innerHTML = KG.salespersons.slice(0,8).map(s=>`
+        <tr><td><b>${s.name}</b></td><td class="muted">${s.city}</td><td>${s.sales}</td>
+        <td><b>${KG.fmt.moneyShort(s.revenue)}</b></td>
+        <td><span class="badge green">${(s.revenue/totalRev*100).toFixed(1)}%</span></td></tr>`).join("");
+
+      // Actions
+      document.getElementById("printBtn").addEventListener("click", ()=> window.print());
+      document.getElementById("pdfBtn").addEventListener("click", ()=> toast("info","Generating PDF","Your report will download shortly."));
+      document.querySelectorAll("[data-dl]").forEach(b=>b.addEventListener("click",()=> toast("success","Download started",`"${b.dataset.dl}" is downloading.`)));
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rankings — KGROUP Sales Performance Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpeg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-app data-page="ranking" data-title="Rankings" data-role="Administrator">
+
+  <div class="page-head reveal" style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <div>
+      <h2 data-i18n="head.ranking.t">Rankings 🏆</h2>
+      <p data-i18n="head.ranking.sub">Celebrate your top performers across every timeframe.</p>
+    </div>
+    <div class="seg" id="periodSeg">
+      <button class="on" data-p="weekly">Weekly</button>
+      <button data-p="monthly">Monthly</button>
+      <button data-p="yearly">Yearly</button>
+    </div>
+  </div>
+
+  <!-- Podium -->
+  <div class="card card-pad reveal" style="background:radial-gradient(120% 120% at 50% 0%, var(--brand-50), var(--surface));overflow:hidden">
+    <div class="podium" id="podium"></div>
+  </div>
+
+  <!-- Top 10 leaderboard -->
+  <div class="card card-pad reveal" style="margin-top:24px">
+    <div class="section-title">
+      <div><h3>Top 10 Leaderboard</h3><div class="sub" id="periodLabel">This week</div></div>
+      <span class="badge green">Live</span>
+    </div>
+    <div class="rank-list" id="board"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="api.js"></script>
+  <script src="dashboard.js"></script>
+  <script>
+    window.KGPage = function ({ icon, avatar }) {
+      const KG = window.KG;
+      document.querySelectorAll("[data-ic]").forEach(el => el.innerHTML = icon(el.dataset.ic));
+
+      // Build period-adjusted scores (demo multipliers)
+      function scored(period) {
+        const mult = period === "weekly" ? 0.06 : period === "monthly" ? 0.28 : 1;
+        return KG.salespersons.map(s => ({...s, score: Math.round(s.sales*mult)+ (period==='weekly'? s.todaySales*3:0)}))
+          .sort((a,b)=>b.score-a.score);
+      }
+
+      function render(period) {
+        const list = scored(period);
+
+        // Empty state — a fresh team has no one to rank yet (was crashing before).
+        if (!list.length) {
+          document.getElementById("podium").innerHTML = `<div style="text-align:center;padding:40px 12px;color:var(--muted);width:100%">
+            <div style="font-size:30px;margin-bottom:8px">🏆</div>
+            <div>No rankings yet — add salespersons and record sales to see the podium.</div></div>`;
+          document.getElementById("board").innerHTML = "";
+          return;
+        }
+
+        const [first, second, third] = list;
+        // Podium order: 2 - 1 - 3 (skip slots that don't exist yet with < 3 reps)
+        const cols = [
+          { s: second, base: "second", medal: "s", label: "2", crown:"🥈" },
+          { s: first,  base: "first",  medal: "g", label: "1", crown:"👑" },
+          { s: third,  base: "third",  medal: "b", label: "3", crown:"🥉" },
+        ].filter(c => c.s);
+        document.getElementById("podium").innerHTML = cols.map((c,i)=>`
+          <div class="podium-col" style="animation-delay:${i*0.12}s">
+            <div class="p-av">
+              <span class="crown">${c.crown}</span>
+              ${avatar(c.s,76)}
+              <span class="medal ${c.medal}">${c.label}</span>
+            </div>
+            <div style="text-align:center">
+              <div class="p-name">${c.s.name.split(" ")[0]}</div>
+              <div class="muted" style="font-size:12px">${c.s.city}</div>
+              <div class="p-score" style="color:var(--brand)">${c.s.score}</div>
+            </div>
+            <div class="podium-base ${c.base}">${c.label}</div>
+          </div>`).join("");
+
+        document.getElementById("board").innerHTML = list.slice(0,10).map((s,i)=>{
+          const max = list[0].score || 1;
+          return `<div class="rank-row">
+            <div class="rank-pos ${i<3?'top'+(i+1):''}">${i+1}</div>
+            ${avatar(s,44)}
+            <div><div class="rank-name">${s.name}</div><div class="rank-sub">${s.level} • ${s.city}</div></div>
+            <div class="rank-val"><b>${s.score} <span class="muted" style="font-size:12px;font-weight:500">units</span></b>
+              <div class="mini-bar"><i data-bar="${Math.round(s.score/max*100)}" style="width:0"></i></div></div>
+          </div>`;
+        }).join("");
+        window.animateBars();
+      }
+
+      render("weekly");
+      const labels = { weekly:"This week", monthly:"This month", yearly:"This year" };
+      document.querySelectorAll("#periodSeg button").forEach(b => b.addEventListener("click", () => {
+        document.querySelectorAll("#periodSeg button").forEach(x=>x.classList.remove("on"));
+        b.classList.add("on");
+        document.getElementById("periodLabel").textContent = labels[b.dataset.p];
+        render(b.dataset.p);
+      }));
+    };
+  </script>
+</body>
+</html>

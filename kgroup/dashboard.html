@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — KGROUP Sales Performance Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpeg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<!-- data-app enables the shared shell; data-page highlights the active nav item -->
+<body data-app data-admin-only data-page="dashboard" data-title="Dashboard" data-role="Administrator">
+
+  <!-- ===================== WELCOME ===================== -->
+  <div class="page-head reveal" style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <div>
+      <h2><span data-i18n="greeting.morning">Good morning</span>, <span id="waveName">there</span> 👋</h2>
+      <p data-i18n="head.dashboard.sub">Here's what's happening across KGROUP Parfumery today.</p>
+    </div>
+    <div class="row gap-3">
+      <button class="btn btn-ghost" id="exportBtn"><span data-ic="download"></span> <span data-i18n="btn.export">Export</span></button>
+      <a href="sales.html" class="btn btn-primary"><span data-ic="plus"></span> <span data-i18n="btn.newSale">New Sale</span></a>
+    </div>
+  </div>
+
+  <!-- ===================== STAT CARDS ===================== -->
+  <div class="grid grid-3" style="margin-bottom:24px">
+    <div class="card stat glass hover-lift reveal">
+      <div class="stat-top">
+        <div class="stat-ico ico-green" data-ic="bag"></div>
+        <span class="trend up" data-ic-pre="arrowUp"> 12.4%</span>
+      </div>
+      <div class="stat-val" data-count="0" id="kSales">0</div>
+      <div class="stat-label">Total Sales (units)</div>
+      <canvas class="spark" data-spark="sales"></canvas>
+    </div>
+
+    <div class="card stat glass hover-lift reveal">
+      <div class="stat-top">
+        <div class="stat-ico ico-blue" data-ic="dollar"></div>
+        <span class="trend up" data-ic-pre="arrowUp"> 8.9%</span>
+      </div>
+      <div class="stat-val" data-count="0" data-money="1" data-suffix=" DHS" id="kRev">0</div>
+      <div class="stat-label">Total Revenue</div>
+      <canvas class="spark" data-spark="rev"></canvas>
+    </div>
+
+    <div class="card stat glass hover-lift reveal">
+      <div class="stat-top">
+        <div class="stat-ico ico-gold" data-ic="users"></div>
+        <span class="trend up" data-ic-pre="arrowUp"> 3</span>
+      </div>
+      <div class="stat-val" data-count="0" id="kReps">0</div>
+      <div class="stat-label">Active Salespersons</div>
+      <canvas class="spark" data-spark="reps"></canvas>
+    </div>
+  </div>
+
+  <!-- ===================== CHART + QUICK ACTIONS ===================== -->
+  <div class="grid grid-2-1" style="margin-bottom:24px">
+    <div class="card card-pad reveal">
+      <div class="section-title">
+        <div>
+          <h3 data-i18n="sec.salesPerf">Sales Performance</h3>
+          <div class="sub" data-i18n="sec.salesPerf.sub">Revenue &amp; units over the last 12 months</div>
+        </div>
+        <div class="seg" id="chartSeg">
+          <button class="on" data-range="year">Year</button>
+          <button data-range="week">Week</button>
+        </div>
+      </div>
+      <div class="chart-legend" style="margin-bottom:8px">
+        <span class="lg"><i style="background:var(--brand)"></i> Revenue</span>
+        <span class="lg"><i style="background:#4C9AFF"></i> Units</span>
+      </div>
+      <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+    </div>
+
+    <div class="card card-pad reveal">
+      <div class="section-title"><h3 data-i18n="sec.quickActions">Quick Actions</h3></div>
+      <div class="qa-grid">
+        <a href="sales.html" class="qa">
+          <span class="qa-ico ico-green" data-ic="plus"></span>
+          <strong>Register Sale</strong><span>Log a new transaction</span>
+        </a>
+        <a href="salespersons.html" class="qa">
+          <span class="qa-ico ico-blue" data-ic="users"></span>
+          <strong>Add Rep</strong><span>Onboard a salesperson</span>
+        </a>
+        <a href="challenges.html" class="qa">
+          <span class="qa-ico ico-purple" data-ic="flag"></span>
+          <strong>New Challenge</strong><span>Launch a competition</span>
+        </a>
+        <a href="reports.html" class="qa">
+          <span class="qa-ico ico-gold" data-ic="file"></span>
+          <strong>Reports</strong><span>Generate insights</span>
+        </a>
+      </div>
+      <div style="margin-top:18px" class="card" >
+        <div class="card-pad" style="background:var(--brand-50);border-radius:var(--r-lg)">
+          <div class="row gap-3">
+            <span class="stat-ico ico-green" data-ic="target"></span>
+            <div>
+              <strong style="font-family:var(--font-display);font-size:15px" data-i18n="sec.monthlyTarget">Monthly Target</strong>
+              <div class="muted" style="font-size:12.5px" id="targetLine">—</div>
+            </div>
+          </div>
+          <div class="progress-bar" style="margin-top:14px"><i id="targetBar" data-bar="0" style="width:0"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== TOP 10 + RECENT SALES ===================== -->
+  <div class="grid grid-2" style="margin-bottom:24px">
+    <div class="card card-pad reveal">
+      <div class="section-title">
+        <div><h3 data-i18n="sec.top10">Top 10 Salespersons</h3><div class="sub" data-i18n="sec.top10.sub">By revenue this month</div></div>
+        <a href="ranking.html" class="link" data-i18n="common.viewAll">View all</a>
+      </div>
+      <div class="rank-list" id="topList"></div>
+    </div>
+
+    <div class="card card-pad reveal">
+      <div class="section-title">
+        <div><h3 data-i18n="sec.recent">Recent Sales</h3><div class="sub" data-i18n="sec.recent.sub">Latest transactions</div></div>
+        <a href="sales.html" class="link" data-i18n="common.viewAll">View all</a>
+      </div>
+      <div class="feed" id="recentFeed"></div>
+    </div>
+  </div>
+
+  <!-- ===================== NOTIFICATIONS + ACTIVITY ===================== -->
+  <div class="grid grid-2" id="notifs">
+    <div class="card card-pad reveal">
+      <div class="section-title"><div><h3 data-i18n="sec.notifications">Latest Notifications</h3></div></div>
+      <div id="notifBlock" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+    <div class="card card-pad reveal">
+      <div class="section-title"><div><h3 data-i18n="sec.category">Sales by Category</h3></div></div>
+      <div class="row" style="gap:24px;flex-wrap:wrap">
+        <canvas id="donut" style="max-width:220px"></canvas>
+        <div id="donutLegend" class="grow" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="api.js"></script>
+  <script src="dashboard.js"></script>
+  <script>
+    window.KGPage = function ({ icon, avatar, toast, KGCharts }) {
+      const KG = window.KG;
+
+      // Fill inline icons declared via data-ic / data-ic-pre
+      document.querySelectorAll("[data-ic]").forEach(el => el.innerHTML = icon(el.dataset.ic));
+      document.querySelectorAll("[data-ic-pre]").forEach(el => el.insertAdjacentHTML("afterbegin", icon(el.dataset.icPre)));
+
+      // Personalised greeting — real logged-in user, not a hardcoded name
+      const firstName = (KG.me && KG.me.name) ? KG.me.name.split(" ")[0] : "there";
+      document.getElementById("waveName").textContent = firstName;
+
+      // Counters
+      document.getElementById("kSales").dataset.count = KG.kpis.totalSales;
+      document.getElementById("kRev").dataset.count   = KG.kpis.totalRevenue;
+      document.getElementById("kReps").dataset.count  = KG.kpis.activeReps;
+      window.animateCounters();
+
+      // Sparklines derived from the real 12-month series (flat when there's no data)
+      KGCharts.sparkline(document.querySelector('[data-spark="sales"]'), KG.series.salesSeries.slice(-8), "#0B7A4B");
+      KGCharts.sparkline(document.querySelector('[data-spark="rev"]'), KG.series.revenueSeries.slice(-8), "#2563EB");
+
+      // Real monthly target = team units achieved vs sum of reps' targets
+      const totalTarget = KG.salespersons.reduce((s,x)=>s+(x.target||0),0);
+      const achieved = KG.kpis.totalSales;
+      const tpct = totalTarget ? Math.min(100, Math.round(achieved/totalTarget*100)) : 0;
+      document.getElementById("targetBar").dataset.bar = tpct;
+      document.getElementById("targetLine").textContent =
+        `${tpct}% — ${KG.fmt.num(achieved)} / ${KG.fmt.num(totalTarget)} units`;
+
+      // Main chart
+      function drawMain(range) {
+        const c = document.getElementById("mainChart");
+        if (range === "week") {
+          KGCharts.barChart(c, { values: KG.series.weekSeries, labels: KG.series.weekDays, height: 300 });
+        } else {
+          KGCharts.lineChart(c, {
+            labels: KG.series.months, height: 300,
+            series: [
+              { values: KG.series.revenueSeries.map(v=>v/1000), color: "#0B7A4B", fill: "rgba(11,122,75,.18)" },
+              { values: KG.series.salesSeries, color: "#4C9AFF" },
+            ]
+          });
+        }
+      }
+      drawMain("year");
+      let curRange = "year";
+      document.querySelectorAll("#chartSeg button").forEach(b => b.addEventListener("click", () => {
+        document.querySelectorAll("#chartSeg button").forEach(x=>x.classList.remove("on"));
+        b.classList.add("on"); curRange = b.dataset.range; drawMain(curRange);
+      }));
+      window.addEventListener("kg:redraw", () => drawMain(curRange));
+
+      // Empty-state helper
+      const empty = (key) => `<div style="text-align:center;padding:34px 12px;color:var(--muted)">
+        <div style="font-size:30px;margin-bottom:8px">📊</div><div data-i18n="${key}">${window.KGI18N.t(key)}</div></div>`;
+
+      // Top 10 (empty state when no salespersons)
+      const topEl = document.getElementById("topList");
+      if (!KG.salespersons.length) { topEl.innerHTML = empty("empty.noReps"); }
+      else topEl.innerHTML = KG.salespersons.slice(0,10).map((s,i)=>{
+        const max = KG.salespersons[0].revenue;
+        const pct = Math.round(s.revenue/max*100);
+        return `<div class="rank-row">
+          <div class="rank-pos ${i<3?'top'+(i+1):''}">${i+1}</div>
+          ${avatar(s,40)}
+          <div><div class="rank-name">${s.name}</div><div class="rank-sub">${s.city} • ${s.level}</div></div>
+          <div class="rank-val"><b>${KG.fmt.moneyShort(s.revenue)}</b>
+            <div class="mini-bar"><i data-bar="${pct}" style="width:0"></i></div></div>
+        </div>`;
+      }).join("");
+
+      // Recent sales feed (empty state when no sales)
+      const feedEl = document.getElementById("recentFeed");
+      if (!KG.recentSales.length) { feedEl.innerHTML = empty("empty.noSales"); }
+      else feedEl.innerHTML = KG.recentSales.slice(0,6).map(t=>`
+        <div class="feed-item">
+          <div class="feed-ico">${icon("bag")}</div>
+          <div class="grow">
+            <div class="f-title">${t.customer} bought ${t.product}</div>
+            <div class="f-time">by ${t.rep} • ${window.KGrelTime(t.at ? Date.parse(t.at) : Date.now() - (t.minsAgo||0)*60000)}</div>
+          </div>
+          <div style="text-align:right"><b style="font-family:var(--font-display)">${KG.fmt.moneyShort(t.amount)}</b>
+          <div><span class="badge ${t.pay==='Espèces'?'green':t.pay==='Virement'?'blue':'gold'}">${t.pay}</span></div></div>
+        </div>`).join("");
+
+      // Notifications block
+      const nmap = { success:["ico-green","trophy"], info:["ico-blue","bell"], gold:["ico-gold","star"] };
+      const notifBlock = document.getElementById("notifBlock");
+      if (!KG.notifications.length) {
+        notifBlock.innerHTML = `<div style="text-align:center;padding:30px;color:var(--muted)">
+          <div style="font-size:28px;margin-bottom:6px">🔔</div><div style="font-size:13px" data-i18n="empty.noSales">${window.KGI18N.t("empty.noSales")}</div></div>`;
+      } else
+      notifBlock.innerHTML = KG.notifications.map(n=>{
+        const [cls,ic]=nmap[n.type]||nmap.info;
+        return `<div class="notif ${n.unread?'unread':''}">
+          <div class="notif-ico ${cls}" style="color:#fff">${icon(n.icon)}</div>
+          <div class="grow"><div style="font-weight:600;font-size:13.5px">${n.title}</div><div class="f-time">${n.time}</div></div>
+        </div>`;
+      }).join("");
+
+      // Donut — sales by category
+      const cats = {};
+      KG.recentSales.forEach(s => {
+        const p = KG.products.find(p=>p.name===s.product);
+        const cat = p ? p.cat : "Other";
+        cats[cat] = (cats[cat]||0) + s.qty;
+      });
+      const palette = ["#0B7A4B","#2563EB","#D89A28","#7C3AED","#E24C4B","#16965E"];
+      const segs = Object.entries(cats).map(([name,value],i)=>({name,value,color:palette[i%palette.length]}));
+      KGCharts.donutChart(document.getElementById("donut"), segs);
+      document.getElementById("donutLegend").innerHTML = segs.map(s=>`
+        <div class="row gap-2"><span style="width:12px;height:12px;border-radius:4px;background:${s.color};display:inline-block"></span>
+        <span style="font-weight:600;font-size:13.5px">${s.name}</span>
+        <span class="grow"></span><span class="muted" style="font-size:13px">${s.value} units</span></div>`).join("");
+
+      // Export button
+      document.getElementById("exportBtn").addEventListener("click", ()=> toast("info","Export started","Your CSV is being generated…"));
+    };
+  </script>
+</body>
+</html>

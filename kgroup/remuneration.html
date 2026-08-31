@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rémunération — KGROUP Sales Performance Platform</title>
+  <meta name="description" content="Rémunération des commerciaux KGROUP Parfumery — commissions, bonus, historique." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpeg" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="crm.css" />
+</head>
+<body data-app data-admin-only data-page="remuneration" data-title="Rémunération">
+
+  <div class="page-head reveal" style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <div>
+      <h2>Rémunération des commerciaux 💰</h2>
+      <p>Commissions (Art. 3) et bonus mensuels (Art. 4) calculés depuis les ventes réelles.</p>
+    </div>
+    <div class="row gap-2" style="flex-wrap:wrap">
+      <input class="input" id="month" type="month" style="width:auto">
+      <button class="btn btn-ghost" data-modal-open="#settingsModal"><span data-ic="gear"></span> Paramètres</button>
+      <button class="btn btn-primary" id="closeBtn">Clôturer le mois</button>
+    </div>
+  </div>
+
+  <!-- Bandeau estimation / clôture -->
+  <div id="statusBanner" class="kc-banner reveal"></div>
+
+  <!-- Synthèse -->
+  <div class="grid grid-4 reveal" style="margin-bottom:20px">
+    <div class="stat-card"><div class="stat-top"><div class="stat-ico ico-green" data-ic="users"></div></div>
+      <div class="stat-val" id="sReps">0</div><div class="stat-lbl">Commerciaux</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-ico ico-blue" data-ic="chart"></div></div>
+      <div class="stat-val" id="sRevenue">0</div><div class="stat-lbl">CA du mois</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-ico ico-gold" data-ic="dollar"></div></div>
+      <div class="stat-val" id="sCommission">0</div><div class="stat-lbl">Commissions</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-ico ico-purple" data-ic="trophy"></div></div>
+      <div class="stat-val" id="sTotal">0</div><div class="stat-lbl">Rémunération totale</div></div>
+  </div>
+
+  <!-- Tableau -->
+  <div class="card card-pad reveal">
+    <div class="section-title" style="align-items:center">
+      <div><h3>Détail par commercial</h3><div class="sub" id="tableSub">—</div></div>
+      <input class="input" id="search" placeholder="Rechercher un commercial…" style="max-width:260px">
+    </div>
+    <div class="table-wrap">
+      <table class="table kc-table">
+        <thead>
+          <tr>
+            <th>Commercial</th><th class="num">Ventes</th><th class="num">CA</th>
+            <th class="num">Commission</th><th class="num">Bonus</th>
+            <th class="num">Salaire fixe</th><th class="num">Total estimé</th><th>Statut</th>
+          </tr>
+        </thead>
+        <tbody id="payBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Historique -->
+  <div class="card card-pad reveal" style="margin-top:24px">
+    <div class="section-title"><div><h3>Évolution mensuelle</h3><div class="sub">6 derniers mois — équipe complète</div></div></div>
+    <canvas id="histChart" height="240"></canvas>
+    <div id="histTable" style="margin-top:16px"></div>
+  </div>
+
+  <!-- ============ MODAL PARAMÈTRES ============ -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal">
+      <div class="modal-head"><h3>Paramètres de rémunération</h3><button class="icon-btn" data-modal-close><span data-ic="x"></span></button></div>
+      <div class="modal-body">
+        <p class="muted" style="font-size:13px;margin-top:0">
+          Ces valeurs s'appliquent à toute l'équipe. Les mois déjà clôturés
+          conservent les paramètres en vigueur au moment de leur clôture.
+        </p>
+        <div class="form-grid">
+          <div class="field"><label>Salaire fixe mensuel (DHS)</label>
+            <input class="input" id="stBase" type="number" min="0" step="1">
+            <div class="muted" style="font-size:12px;margin-top:4px">Le contrat KGroup n'en prévoit pas — 0 par défaut.</div>
+          </div>
+          <div class="field"><label>Mode de commission</label>
+            <select class="select" id="stMode">
+              <option value="per_unit">Par unité vendue (Art. 3)</option>
+              <option value="percent">Pourcentage du CA</option>
+            </select>
+          </div>
+          <div class="field" id="rateField"><label>Taux de commission (%)</label>
+            <input class="input" id="stRate" type="number" min="0" max="100" step="0.1">
+          </div>
+        </div>
+        <h4 class="kc-h4">Paliers de bonus mensuels (Art. 4)</h4>
+        <div id="tierRows" class="kc-tiers"></div>
+        <button class="btn btn-ghost btn-sm" id="addTier" style="margin-top:8px">+ Ajouter un palier</button>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-modal-close>Annuler</button>
+        <button class="btn btn-primary" id="stSave">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL CLÔTURE ============ -->
+  <div class="modal-overlay" id="closeModal">
+    <div class="modal">
+      <div class="modal-head"><h3>Clôturer le mois</h3><button class="icon-btn" data-modal-close><span data-ic="x"></span></button></div>
+      <div class="modal-body">
+        <p id="closeText"></p>
+        <div class="field"><label>Statut à appliquer</label>
+          <select class="select" id="closeStatus">
+            <option value="CLOTURE">CLÔTURÉ — les montants sont figés</option>
+            <option value="VALIDEE">VALIDÉE — vérifiée par l'administration</option>
+            <option value="PAYEE">PAYÉE — versée aux commerciaux</option>
+          </select>
+        </div>
+        <p class="muted" style="font-size:13px">
+          Les montants et les paramètres de calcul sont enregistrés définitivement.
+          Une modification ultérieure des règles ne les réécrira pas.
+        </p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-modal-close>Annuler</button>
+        <button class="btn btn-primary" id="confirmClose">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="api.js"></script>
+  <script src="dashboard.js"></script>
+  <script>
+    window.KGPage = async function ({ icon, toast, KGCharts }) {
+      const $  = (s) => document.querySelector(s);
+      const $$ = (s) => Array.from(document.querySelectorAll(s));
+      const KG = window.KG;
+      const API = window.KGPayroll;
+      const esc = (s) => String(s == null ? "" : s)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      const money = (n) => KG.fmt.money(Number(n) || 0);
+
+      const nowMonth = new Date().toISOString().slice(0, 7);
+      $("#month").value = nowMonth;
+      $("#month").max = nowMonth;
+
+      let lines = [];
+
+      /* ---------- Chargement ---------- */
+      async function load() {
+        const month = $("#month").value || nowMonth;
+        const data = await API.team(month);
+        if (!data) {
+          $("#payBody").innerHTML =
+            `<tr><td colspan="8" class="muted" style="text-align:center;padding:28px">
+               Mode démo — démarrez l'API pour calculer la rémunération réelle.</td></tr>`;
+          return;
+        }
+        lines = data.lines;
+        const s = data.summary;
+        $("#sReps").textContent = s.reps;
+        $("#sRevenue").textContent = money(s.revenue);
+        $("#sCommission").textContent = money(s.commission);
+        $("#sTotal").textContent = money(s.total);
+        $("#tableSub").textContent =
+          `${s.sales_count} vente(s) · bonus ${money(s.bonus)} · salaires fixes ${money(s.salary_base)}`;
+
+        const isCurrent = month === nowMonth;
+        const anyLocked = lines.some(l => l.locked);
+        $("#statusBanner").className = "kc-banner reveal " + (anyLocked ? "locked" : "estimate");
+        $("#statusBanner").innerHTML = anyLocked
+          ? `🔒 <b>Mois clôturé</b> — les montants ci-dessous sont figés, avec les paramètres appliqués au moment de la clôture.`
+          : `📊 <b>Rémunération estimée</b> — le mois n'est pas clôturé. Les montants évoluent à chaque vente enregistrée.`;
+        $("#closeBtn").disabled = isCurrent || anyLocked;
+        $("#closeBtn").title = isCurrent
+          ? "Le mois en cours ne peut être clôturé qu'une fois terminé."
+          : anyLocked ? "Ce mois est déjà clôturé." : "";
+
+        renderTable();
+      }
+
+      function renderTable() {
+        const q = $("#search").value.trim().toLowerCase();
+        const rows = lines.filter(l => !q || (l.rep_name || "").toLowerCase().includes(q));
+        $("#payBody").innerHTML = rows.length ? rows.map(l => `
+          <tr>
+            <td><b>${esc(l.rep_name)}</b></td>
+            <td class="num">${l.sales_count}</td>
+            <td class="num">${money(l.revenue)}</td>
+            <td class="num">${money(l.commission)}</td>
+            <td class="num">${money(l.bonus)}${
+              l.bonus_next ? `<div class="muted" style="font-size:11px">→ ${l.bonus_next.sales} ventes : ${money(l.bonus_next.bonus)}</div>` : ""}</td>
+            <td class="num">${money(l.salary_base)}</td>
+            <td class="num"><b style="color:var(--brand)">${money(l.total)}</b></td>
+            <td><span class="kc-status ${esc(l.status)}">${esc(l.status.replace("_", " "))}</span></td>
+          </tr>`).join("")
+          : `<tr><td colspan="8" class="muted" style="text-align:center;padding:28px">
+               Aucun commercial ne correspond.</td></tr>`;
+      }
+      $("#search").addEventListener("input", renderTable);
+      $("#month").addEventListener("change", load);
+
+      /* ---------- Historique ---------- */
+      async function loadHistory() {
+        const h = await API.history(6);
+        if (!h || !h.months.length) return;
+        const labels = h.months.map(m => {
+          const [y, mo] = m.period.split("-");
+          return new Date(+y, +mo - 1, 1).toLocaleDateString("fr-FR", { month: "short" });
+        });
+        KGCharts.barChart($("#histChart"), {
+          values: h.months.map(m => Number(m.total) || 0), labels, height: 240,
+        });
+        $("#histTable").innerHTML = `
+          <div class="table-wrap"><table class="table">
+            <thead><tr><th>Mois</th><th class="num">Ventes</th><th class="num">CA</th>
+              <th class="num">Commissions</th><th class="num">Bonus</th><th class="num">Total</th><th>Statut</th></tr></thead>
+            <tbody>${h.months.slice().reverse().map(m => `<tr>
+              <td>${new Date(m.period).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}</td>
+              <td class="num">${m.sales_count}</td>
+              <td class="num">${money(m.revenue)}</td>
+              <td class="num">${money(m.commission)}</td>
+              <td class="num">${money(m.bonus)}</td>
+              <td class="num"><b>${money(m.total)}</b></td>
+              <td><span class="kc-status ${m.locked ? "CLOTURE" : "EN_COURS"}">${m.locked ? "figé" : "estimé"}</span></td>
+            </tr>`).join("")}</tbody>
+          </table></div>`;
+      }
+
+      /* ---------- Paramètres ---------- */
+      let settings = null;
+      function tierRow(t) {
+        return `<div class="kc-tier">
+          <input class="input" type="number" min="0" value="${t.sales || 0}" data-t="sales" placeholder="Ventes">
+          <input class="input" type="number" min="0" value="${t.bonus || 0}" data-t="bonus" placeholder="Bonus">
+          <input class="input" value="${esc(t.extra || "")}" data-t="extra" placeholder="Avantage">
+          <button class="btn btn-ghost btn-sm" data-del>✕</button>
+        </div>`;
+      }
+      function bindTierDelete() {
+        $$("#tierRows [data-del]").forEach(b =>
+          b.addEventListener("click", () => { b.closest(".kc-tier").remove(); }));
+      }
+      async function loadSettings() {
+        settings = await API.settings();
+        if (!settings) return;
+        $("#stBase").value = settings.salary_base || 0;
+        $("#stMode").value = settings.commission_mode || "per_unit";
+        $("#stRate").value = settings.commission_rate || 0;
+        $("#tierRows").innerHTML = (settings.bonus_tiers || []).map(tierRow).join("");
+        bindTierDelete();
+        syncRateField();
+      }
+      function syncRateField() {
+        $("#rateField").style.display = $("#stMode").value === "percent" ? "" : "none";
+      }
+      $("#stMode").addEventListener("change", syncRateField);
+      $("#addTier").addEventListener("click", () => {
+        $("#tierRows").insertAdjacentHTML("beforeend", tierRow({ sales: 0, bonus: 0, extra: "" }));
+        bindTierDelete();
+      });
+      $("#stSave").addEventListener("click", async (e) => {
+        const tiers = $$("#tierRows .kc-tier").map(row => ({
+          sales: +row.querySelector('[data-t="sales"]').value || 0,
+          bonus: +row.querySelector('[data-t="bonus"]').value || 0,
+          extra: row.querySelector('[data-t="extra"]').value.trim(),
+        }));
+        e.currentTarget.disabled = true;
+        try {
+          await API.saveSettings({
+            salary_base: +$("#stBase").value || 0,
+            commission_mode: $("#stMode").value,
+            commission_rate: +$("#stRate").value || 0,
+            bonus_tiers: tiers,
+          });
+          window.kgModal.close($("#settingsModal"));
+          toast("success", "Paramètres enregistrés", "Les estimations en cours ont été recalculées.");
+          await Promise.all([loadSettings(), load(), loadHistory()]);
+        } catch (err) {
+          toast("error", "Enregistrement impossible", err.message);
+        } finally { e.currentTarget.disabled = false; }
+      });
+
+      /* ---------- Clôture ---------- */
+      $("#closeBtn").addEventListener("click", () => {
+        const m = $("#month").value;
+        $("#closeText").innerHTML =
+          `Vous êtes sur le point de figer la rémunération de <b>${
+            new Date(m + "-01").toLocaleDateString("fr-FR", { month: "long", year: "numeric" })
+          }</b> pour <b>${lines.length}</b> commercial(aux).`;
+        window.kgModal.open("#closeModal");
+      });
+      $("#confirmClose").addEventListener("click", async (e) => {
+        e.currentTarget.disabled = true;
+        try {
+          const res = await API.close($("#month").value, $("#closeStatus").value);
+          window.kgModal.close($("#closeModal"));
+          toast("success", "Mois clôturé", `${res.closed} ligne(s) figée(s) en ${res.status}.`);
+          await Promise.all([load(), loadHistory()]);
+        } catch (err) {
+          toast("error", "Clôture impossible", err.message);
+        } finally { e.currentTarget.disabled = false; }
+      });
+
+      await loadSettings();
+      await Promise.all([load(), loadHistory()]);
+      window.addEventListener("kg:redraw", loadHistory);
+    };
+  </script>
+</body>
+</html>

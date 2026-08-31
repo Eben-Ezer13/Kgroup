@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Join your team — KGROUP Sales Performance Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpeg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="preloader"><div class="loader-ring"></div></div>
+
+  <main class="auth">
+    <!-- ============ LEFT: BRAND HERO ============ -->
+    <section class="auth-hero">
+      <div class="ah-top">
+        <div class="brand-line">
+          <span id="logoSlot"></span>
+          <div>
+            <strong>KGROUP PARFUMERY</strong>
+            <span>La senteur du luxe</span>
+          </div>
+        </div>
+      </div>
+      <div class="ah-mid">
+        <h2>You're <em>invited.</em></h2>
+        <p class="lead">Set up your salesperson account to start tracking your sales, climbing the rankings and unlocking rewards with your team.</p>
+        <div class="auth-stats">
+          <div class="as"><b>Level up</b><span>Earn XP &amp; badges</span></div>
+          <div class="as"><b>Compete</b><span>Live leaderboards</span></div>
+          <div class="as"><b>Win</b><span>Real rewards</span></div>
+        </div>
+      </div>
+      <div class="ah-bot"></div>
+      <svg class="bottle-float" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="50" y="6" width="20" height="22" rx="3" fill="rgba(255,255,255,.9)"/>
+        <ellipse cx="60" cy="34" rx="18" ry="9" fill="rgba(255,255,255,.85)"/>
+        <path d="M30 60c0-11 13-20 30-20s30 9 30 20v70c0 11-9 20-20 20H50c-11 0-20-9-20-20z" fill="rgba(255,255,255,.22)" stroke="rgba(255,255,255,.85)" stroke-width="2.5"/>
+        <text x="60" y="115" font-family="Sora, sans-serif" font-size="46" font-weight="800" fill="rgba(255,255,255,.9)" text-anchor="middle">K</text>
+      </svg>
+    </section>
+
+    <!-- ============ RIGHT: INVITE ACCEPT FORM ============ -->
+    <section class="auth-form-wrap">
+      <div class="auth-card glass card-pad">
+        <div class="ac-head">
+          <h3 id="title">Join your team ✨</h3>
+          <p id="sub">Setting up your salesperson account…</p>
+        </div>
+
+        <!-- Invited-person banner -->
+        <div id="inviteBanner" class="card card-pad hidden" style="background:var(--brand-50);border:1px dashed var(--brand-300);border-radius:var(--r-md);margin-bottom:20px">
+          <div class="row gap-3">
+            <span class="avatar-fallback" id="inviteAv" style="width:44px;height:44px">?</span>
+            <div>
+              <strong id="inviteName" style="font-family:var(--font-display)">—</strong>
+              <div class="muted" style="font-size:12.5px" id="inviteTeam">—</div>
+            </div>
+          </div>
+        </div>
+
+        <form id="regForm" novalidate>
+          <div class="field" style="margin-bottom:18px">
+            <label for="email">Email address</label>
+            <div class="input-icon">
+              <span id="mailIco"></span>
+              <input class="input" type="email" id="email" placeholder="you@email.com" autocomplete="email" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="password">Create a password</label>
+            <div class="input-icon">
+              <span id="lockIco"></span>
+              <input class="input" type="password" id="password" placeholder="At least 6 characters" autocomplete="new-password" required />
+              <button type="button" class="toggle-pass" id="togglePass" aria-label="Show password"></button>
+            </div>
+          </div>
+
+          <div id="formMsg" class="hidden" style="margin:16px 0 4px;padding:11px 14px;border-radius:12px;font-size:13px;font-weight:600"></div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="submitBtn" style="margin-top:20px">Create my account</button>
+
+          <p style="text-align:center;margin-top:20px;font-size:13.5px" class="muted">
+            Already have an account? <a href="login.html" class="link">Sign in</a>
+          </p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="api.js"></script>
+  <script src="dashboard.js"></script>
+  <script>
+    document.getElementById("logoSlot").innerHTML = window.KG_LOGO;
+    document.getElementById("mailIco").innerHTML = window.icon("mail");
+    document.getElementById("lockIco").innerHTML = window.icon("lock");
+    document.getElementById("togglePass").innerHTML = window.icon("eye");
+
+    const $ = (id) => document.getElementById(id);
+    const A = window.KGAuth;
+    const params = new URLSearchParams(location.search);
+    const code = params.get("invite");
+    let inviteName = "";
+
+    function showMsg(type, text) {
+      const m = $("formMsg"); m.classList.remove("hidden");
+      const c = { error: ["rgba(226,76,75,.12)", "#C43535"], info: ["var(--brand-50)", "var(--brand-600)"] };
+      const [bg, fg] = c[type] || c.info; m.style.background = bg; m.style.color = fg; m.textContent = text;
+    }
+
+    // Password toggle
+    const pass = $("password");
+    $("togglePass").addEventListener("click", (e) => {
+      const showing = pass.type === "text";
+      pass.type = showing ? "password" : "text";
+      e.currentTarget.innerHTML = window.icon(showing ? "eye" : "eyeoff");
+    });
+
+    (async function init() {
+      document.querySelector(".preloader")?.classList.add("done");
+
+      if (!code) {
+        showMsg("error", "This invite link is missing its code. Ask your manager for a new one.");
+        $("submitBtn").disabled = true;
+        $("sub").textContent = "Invalid invite link.";
+        return;
+      }
+
+      if (!(await A.ready())) {
+        // Demo mode — let it proceed for preview purposes
+        $("inviteBanner").classList.remove("hidden");
+        $("inviteName").textContent = "Demo Salesperson";
+        $("inviteTeam").textContent = "Demo Team";
+        $("inviteAv").textContent = "DS";
+        return;
+      }
+
+      // Look up who this invite belongs to
+      const info = await A.inviteInfo(code);
+      if (!info) {
+        showMsg("error", "This invite is invalid or has already been used.");
+        $("submitBtn").disabled = true;
+        $("sub").textContent = "Invite unavailable.";
+        return;
+      }
+      inviteName = info.name || "";
+      $("inviteBanner").classList.remove("hidden");
+      $("inviteName").textContent = info.name || "Salesperson";
+      $("inviteTeam").textContent = info.team_name ? ("Joining " + info.team_name) : "Joining your team";
+      $("inviteAv").textContent = (info.name || "?").split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
+      if (info.email) $("email").value = info.email;
+    })();
+
+    // Submit → sign up with the salesperson role + invite code (trigger claims the roster row)
+    $("regForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = $("email").value.trim(), password = pass.value;
+      if (!email || password.length < 6) { showMsg("error", "Enter your email and a password of at least 6 characters."); return; }
+
+      const btn = $("submitBtn"); btn.disabled = true;
+      btn.innerHTML = '<span class="loader-ring" style="width:18px;height:18px;border-width:2.5px"></span> Creating…';
+      try {
+        const res = await A.signUp(email, password, inviteName || email.split("@")[0], { role: "salesperson", inviteCode: code });
+        if (res && res.demo) { window.location.href = "salesperson.html"; return; }
+        if (res && res.user && !res.session) {
+          showMsg("info", "Account created! Check your inbox to confirm, then sign in.");
+          btn.disabled = false; btn.innerHTML = "Create my account";
+          return;
+        }
+        window.toast && window.toast("success", "Welcome to the team!", "Loading your dashboard…");
+        setTimeout(() => window.location.href = "salesperson.html", 700);
+      } catch (err) {
+        btn.disabled = false; btn.innerHTML = "Create my account";
+        showMsg("error", err.message || "Could not create your account.");
+      }
+    });
+  </script>
+</body>
+</html>

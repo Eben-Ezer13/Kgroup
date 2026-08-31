@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register Sale — KGROUP Sales Performance Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpeg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-app data-page="sales" data-title="Register Sale" data-role="Administrator">
+
+  <div class="page-head reveal">
+    <h2 data-i18n="head.sales.t">Register a Sale</h2>
+    <p data-i18n="head.sales.sub">Log a new transaction — it updates rankings, XP and challenges instantly.</p>
+  </div>
+
+  <div class="grid grid-2-1">
+    <!-- ============ FORM ============ -->
+    <div class="card card-pad reveal">
+      <form id="saleForm" novalidate>
+        <div class="form-grid">
+          <!-- ---- CLIENT ---- -->
+          <div class="field full" style="margin-bottom:-4px">
+            <div class="row" style="justify-content:space-between;align-items:center">
+              <label style="margin:0">Client</label>
+              <span id="clientHint" class="muted" style="font-size:12px"></span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Téléphone</label>
+            <input class="input" id="clientPhone" type="tel" placeholder="06 12 34 56 78" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Nom du client <span class="req">*</span></label>
+            <input class="input" id="customer" placeholder="Nom du client" required>
+          </div>
+          <div class="field">
+            <label>Date d'anniversaire</label>
+            <input class="input" id="clientBirthday" type="date">
+          </div>
+          <div class="field">
+            <label>Salesperson</label>
+            <select class="select" id="rep"></select>
+          </div>
+
+          <div class="field full">
+            <label>Product <span class="req">*</span></label>
+            <select class="select" id="product"></select>
+          </div>
+
+          <div class="field">
+            <label>Quantity <span class="req">*</span></label>
+            <input class="input" id="qty" type="number" min="1" value="1" required>
+          </div>
+          <div class="field">
+            <label>Unit Price (DHS)</label>
+            <input class="input" id="price" type="number" readonly>
+          </div>
+
+          <div class="field full">
+            <label>Payment Method</label>
+            <div class="pay-options">
+              <div class="pay-opt">
+                <input type="radio" name="pay" id="payCash" value="Espèces" checked>
+                <label for="payCash"><span data-ic="cash"></span>Espèces</label>
+              </div>
+              <div class="pay-opt">
+                <input type="radio" name="pay" id="payTransfer" value="Virement">
+                <label for="payTransfer"><span data-ic="transfer"></span>Virement</label>
+              </div>
+              <div class="pay-opt">
+                <input type="radio" name="pay" id="payMobile" value="Mobile Money">
+                <label for="payMobile"><span data-ic="phone"></span>Mobile Money</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Date</label>
+            <input class="input" id="date" type="date">
+          </div>
+          <div class="field">
+            <label>Reference</label>
+            <input class="input" id="ref" readonly>
+          </div>
+
+          <div class="field full">
+            <label>Remarks</label>
+            <textarea class="textarea" id="remarks" placeholder="Optional notes about this sale…"></textarea>
+          </div>
+        </div>
+
+        <div class="row gap-3" style="margin-top:22px">
+          <button type="submit" class="btn btn-primary"><span data-ic="check"></span> Register Sale</button>
+          <button type="reset" class="btn btn-ghost">Clear form</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ============ LIVE SUMMARY ============ -->
+    <div class="reveal">
+      <div class="card card-pad" style="position:sticky;top:96px">
+        <div class="section-title"><h3>Order Summary</h3></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="row"><span class="muted grow">Product</span><b id="sumProduct" style="text-align:right;max-width:60%">—</b></div>
+          <div class="row"><span class="muted grow">Quantity</span><b id="sumQty">1</b></div>
+          <div class="row"><span class="muted grow">Unit price</span><b id="sumPrice">0 DHS</b></div>
+          <div class="row"><span class="muted grow">Payment</span><span class="badge green" id="sumPay">Espèces</span></div>
+          <hr style="border:none;border-top:1px dashed var(--line)">
+          <div class="row"><span class="grow" style="font-weight:600">Total</span>
+            <b id="sumTotal" style="font-family:var(--font-display);font-size:24px;color:var(--brand)">0 DHS</b></div>
+        </div>
+        <div class="card card-pad" style="background:var(--brand-50);border-radius:var(--r-md);margin-top:18px">
+          <div class="row gap-2" style="justify-content:space-between">
+            <span style="font-size:13px;font-weight:600">💸 Your commission (Art. 3)</span>
+            <b id="sumCommission" style="color:var(--brand)">0 DHS</b>
+          </div>
+          <div class="row gap-2" style="margin-top:10px"><span data-ic="zap" style="color:var(--brand)"></span>
+          <span style="font-size:13px;font-weight:600">+<span id="xpGain">25</span> XP will be awarded</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success modal -->
+  <div class="modal-overlay" id="successModal">
+    <div class="modal" style="max-width:420px;text-align:center">
+      <div class="modal-body" style="padding:34px 28px">
+        <div class="stat-ico ico-green" style="width:72px;height:72px;margin:0 auto 18px;animation:popIn .5s var(--ease)">
+          <span data-ic="check" style="transform:scale(1.4)"></span>
+        </div>
+        <h3 style="font-size:22px;margin-bottom:8px">Sale Registered!</h3>
+        <p class="muted" id="successMsg">Transaction saved successfully.</p>
+        <div style="margin-top:22px" class="row gap-3 center">
+          <button class="btn btn-ghost" data-modal-close>Register another</button>
+          <a href="dashboard.html" class="btn btn-primary">Back to dashboard</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="api.js"></script>
+  <script src="dashboard.js"></script>
+  <script>
+    window.KGPage = function ({ icon, toast }) {
+      const KG = window.KG;
+      const $ = (s) => document.querySelector(s);
+      document.querySelectorAll("[data-ic]").forEach(el => el.innerHTML = icon(el.dataset.ic));
+
+      // Populate reps + products
+      $("#rep").innerHTML = KG.salespersons.map(s=>`<option value="${s.id}">${s.name} — ${s.city}</option>`).join("");
+
+      // Salespersons can only register their OWN sales → lock the rep field to themselves
+      if (window.KG_ROLE === "salesperson" && KG.me) {
+        if (![...$("#rep").options].some(o => o.value === KG.me.id))
+          $("#rep").insertAdjacentHTML("afterbegin", `<option value="${KG.me.id}">${KG.me.name}</option>`);
+        $("#rep").value = KG.me.id;
+        $("#rep").disabled = true;
+      }
+      $("#product").innerHTML = KG.products.map(p=>`<option value="${p.id}" data-price="${p.price}" data-commission="${p.commission}">${p.name} — ${KG.fmt.money(p.price)}</option>`).join("");
+
+      // Defaults — real current date & a timestamp-based reference
+      const today = () => new Date().toISOString().slice(0, 10);
+      const newRef = () => "TX-" + Date.now().toString().slice(-8);
+      $("#date").value = today();
+      $("#date").max = today();          // no future-dated sales
+      $("#ref").value = newRef();
+
+      function selPrice() { const o = $("#product").selectedOptions[0]; return +(o?.dataset.price || 0); }
+      function selCommission() { const o = $("#product").selectedOptions[0]; return +(o?.dataset.commission || 0); }
+      const payClass = (p) => p === "Espèces" ? "green" : p === "Virement" ? "blue" : "gold";
+      function update() {
+        const price = selPrice(), qty = Math.max(1, +$("#qty").value || 1);
+        const total = price * qty, commission = selCommission() * qty;
+        $("#price").value = price;
+        $("#sumProduct").textContent = $("#product").selectedOptions[0].textContent.replace(/\s*—.*/,"");
+        $("#sumQty").textContent = qty;
+        $("#sumPrice").textContent = KG.fmt.money(price);
+        $("#sumTotal").textContent = KG.fmt.money(total);
+        $("#sumCommission").textContent = KG.fmt.money(commission);
+        $("#xpGain").textContent = Math.max(10, Math.round(total/60));
+        const pay = document.querySelector('input[name="pay"]:checked').value;
+        const badge = $("#sumPay");
+        badge.textContent = pay;
+        badge.className = "badge " + payClass(pay);
+      }
+      ["#product","#qty"].forEach(s => $(s).addEventListener("input", update));
+      document.querySelectorAll('input[name="pay"]').forEach(r => r.addEventListener("change", update));
+      update();
+
+      /* ---- Reconnaissance du client par son numero -------------------
+         Des que le numero saisi est exploitable, on interroge l API. Si le
+         client existe deja, on prerempli nom et anniversaire : le commercial
+         n a jamais a resaisir un client connu, et aucun doublon n est cree. */
+      let matchedClientId = null;
+      const hint = $("#clientHint");
+      function setHint(text, ok) {
+        hint.textContent = text || "";
+        hint.style.color = ok ? "var(--brand)" : "var(--muted)";
+      }
+
+      let lookupTimer;
+      $("#clientPhone").addEventListener("input", () => {
+        clearTimeout(lookupTimer);
+        matchedClientId = null;
+        setHint("");
+        const raw = $("#clientPhone").value.trim();
+        if (raw.replace(/\D/g, "").length < 6) return;
+        // Anti-rafale : on n interroge qu apres une pause de frappe.
+        lookupTimer = setTimeout(async () => {
+          if (!window.KGClients) return;
+          const c = await window.KGClients.lookupByPhone(raw);
+          if (!c) { setHint("Nouveau client — il sera cree avec cette vente."); return; }
+          matchedClientId = c.id;
+          $("#customer").value = c.name || "";
+          if (c.birthday) $("#clientBirthday").value = String(c.birthday).slice(0, 10);
+          setHint(`Client connu : ${c.name} — ${c.sales_count || 0} vente(s)`, true);
+        }, 350);
+      });
+
+      // Submit → persist through the API when reachable, else demo
+      $("#saleForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!$("#customer").value.trim()) { toast("error","Missing customer","Please enter a customer name."); $("#customer").focus(); return; }
+
+        const btn = e.submitter || document.querySelector('#saleForm button[type=submit]');
+        const price = selPrice(), qty = Math.max(1, +$("#qty").value || 1);
+        const sale = {
+          customer: $("#customer").value.trim(),
+          product: $("#product").selectedOptions[0].textContent.replace(/\s*—.*/,""),
+          qty, amount: price * qty,
+          commission: selCommission() * qty,
+          pay: document.querySelector('input[name="pay"]:checked').value,
+          rep_id: $("#rep").value || null,
+          rep_name: $("#rep").selectedOptions[0].textContent.replace(/\s*—.*/,""),
+          remarks: $("#remarks").value.trim() || null,
+          // Le serveur retrouve le client par son numero, ou le cree. Il ne
+          // duplique jamais un client existant (numero unique par equipe).
+          client_id: matchedClientId || null,
+          client_phone: $("#clientPhone").value.trim() || null,
+          client_birthday: $("#clientBirthday").value || null,
+        };
+        // Real timestamp: today's sale uses the exact current time; a back-dated
+        // one keeps the chosen day. The DB would default to now() too, but we set
+        // it explicitly so the picked date is always honoured.
+        const dateVal = $("#date").value;
+        sale.created_at = (dateVal && dateVal !== today())
+          ? new Date(dateVal + "T12:00:00").toISOString()
+          : new Date().toISOString();
+
+        try {
+          if (window.KGDB) {
+            btn && (btn.disabled = true);
+            await window.KGDB.addSale(sale); // no-op stub in demo mode
+          }
+        } catch (err) {
+          toast("error", "Could not save", err.message || "Please try again.");
+          btn && (btn.disabled = false);
+          return;
+        }
+        btn && (btn.disabled = false);
+
+        $("#successMsg").innerHTML = `<b>${$("#sumProduct").textContent}</b> ×${$("#sumQty").textContent} — <b style="color:var(--brand)">${$("#sumTotal").textContent}</b>`;
+        window.kgModal.open("#successModal");
+        toast("success","Sale registered","Rankings & XP updated.");
+        e.target.reset(); $("#date").value = today(); $("#ref").value = newRef();
+        matchedClientId = null; setHint(""); update();
+      });
+    };
+  </script>
+</body>
+</html>
