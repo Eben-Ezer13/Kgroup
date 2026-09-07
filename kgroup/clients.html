@@ -359,6 +359,10 @@
         const members = await API.members();
         if (!members) return;
         $("#rolesCard").classList.remove("hidden");
+        if (!members.length) {
+          $("#rolesBody").innerHTML = '<tr><td colspan="4" class="muted" style="padding:18px">Aucun commercial inscrit. Créez un commercial puis partagez son lien d’invitation.</td></tr>';
+          return;
+        }
         $("#rolesBody").innerHTML = members.map(m => {
           const isAdminRow = m.role === "admin";
           const isRC = m.role === "relation_client";

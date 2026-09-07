@@ -23,16 +23,17 @@
   <!-- Edit modal -->
   <div class="modal-overlay" id="editModal">
     <div class="modal">
-      <div class="modal-head"><h3>Edit Salesperson</h3><button class="icon-btn" data-modal-close><span data-ic="x"></span></button></div>
+      <div class="modal-head"><h3>Edit Salesperson</h3><button class="icon-btn" data-modal-close title="Close edit dialog"><span data-ic="x"></span></button></div>
       <div class="modal-body">
         <input type="hidden" id="editId">
         <div class="form-grid">
-          <div class="field full"><label>Full name <span class="req">*</span></label><input class="input" id="editName"></div>
-          <div class="field"><label>City</label><input class="input" id="editCity"></div>
-          <div class="field"><label>Phone</label><input class="input" id="editPhone"></div>
-          <div class="field"><label>Email</label><input class="input" id="editEmail" type="email"></div>
-          <div class="field"><label>Level</label><select class="select" id="editLevel"><option>Rookie</option><option>Bronze</option><option>Silver</option><option>Gold</option><option>Platinum</option><option>Diamond</option></select></div>
-          <div class="field"><label>Status</label><select class="select" id="editStatus"><option>Active</option><option>Inactive</option></select></div>
+          <div class="field full"><label for="editName">Full name <span class="req">*</span></label><input class="input" id="editName" title="Full name" placeholder="Full name"></div>
+          <div class="field"><label for="editCity">City</label><input class="input" id="editCity" title="City" placeholder="City"></div>
+          <div class="field"><label for="editPhone">Phone</label><input class="input" id="editPhone" title="Phone" placeholder="Phone"></div>
+          <div class="field"><label for="editEmail">Email</label><input class="input" id="editEmail" type="email" title="Email" placeholder="Email"></div>
+          <div class="field"><label for="editLevel">Level</label><select class="select" id="editLevel" title="Salesperson level"><option>Rookie</option><option>Bronze</option><option>Silver</option><option>Gold</option><option>Platinum</option><option>Diamond</option></select></div>
+          <div class="field"><label for="editStatus">Status</label><select class="select" id="editStatus" title="Salesperson status"><option>Active</option><option>Inactive</option></select></div>
+          <div class="field full"><label for="editRole">Client portfolio access</label><select class="select" id="editRole" title="Client portfolio access"><option value="salesperson">Salesperson — own clients</option><option value="relation_client">Client relations — all clients</option></select><div class="hint">The salesperson must have activated their invite.</div></div>
         </div>
       </div>
       <div class="modal-foot"><button class="btn btn-ghost" data-modal-close>Cancel</button><button class="btn btn-primary" id="saveEdit">Save changes</button></div>
@@ -64,6 +65,7 @@
             <th class="sortable" data-key="sales">Sales <span class="sort-ico" data-ic="sort"></span></th>
             <th class="sortable" data-key="revenue">Revenue <span class="sort-ico" data-ic="sort"></span></th>
             <th>Status</th>
+            <th>Access</th>
             <th class="sortable" data-key="rank">Rank <span class="sort-ico" data-ic="sort"></span></th>
             <th style="text-align:right">Actions</th>
           </tr>
@@ -175,6 +177,9 @@
           <td><b>${s.sales}</b></td>
           <td><b>${KG.fmt.moneyShort(s.revenue)}</b></td>
           <td>${s.invite_code ? '<span class="badge gold">⏳ Invite pending</span>' : statusBadge(s.status)}</td>
+          <td>${s.role === "relation_client"
+            ? '<span class="badge green">Client relations</span>'
+            : '<span class="badge gray">Salesperson</span>'}</td>
           <td>${rankTag(s.rank)}</td>
           <td><div class="row-actions" style="justify-content:flex-end">
             ${s.invite_code ? `<button class="icon-btn" data-invite="${s.id}" title="Copy invite link" style="color:var(--brand);border-color:var(--brand-300)">${icon("link")}</button>` : ""}
@@ -241,6 +246,7 @@
           document.getElementById("editEmail").value = s.email || "";
           document.getElementById("editLevel").value = s.level || "Rookie";
           document.getElementById("editStatus").value = s.status || "Active";
+          document.getElementById("editRole").value = s.role || "salesperson";
           window.kgModal.open("#editModal");
         }));
         document.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => {
@@ -312,6 +318,7 @@
           email: document.getElementById("editEmail").value.trim() || null,
           level: document.getElementById("editLevel").value,
           status: document.getElementById("editStatus").value,
+          role: document.getElementById("editRole").value,
         };
         try {
           e.target.disabled = true;

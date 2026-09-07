@@ -69,7 +69,11 @@ const SALESPERSON_FIELDS = [
 router.get("/salespersons", requireUser, async (req, res, next) => {
   try {
     const rows = await db.many(
-      `select * from public.salespersons where team_id = $1 order by revenue desc`,
+      `select s.*, coalesce(p.role, 'salesperson') as role
+         from public.salespersons s
+         left join public.profiles p on p.salesperson_id = s.id
+        where s.team_id = $1
+        order by s.revenue desc`,
       [teamScope(req)]
     );
     return res.json(rows);
@@ -110,6 +114,15 @@ router.post("/salespersons", requireUser, async (req, res, next) => {
 router.patch("/salespersons/:id", requireUser, async (req, res, next) => {
   try {
     requireAdmin(req);
+    const requestedRole = req.body && req.body.role !== undefined
+      ? String(req.body.role)
+      : null;
+    if (requestedRole !== null) {
+      const { ASSIGNABLE_ROLES } = require("../policies");
+      if (!ASSIGNABLE_ROLES.includes(requestedRole)) {
+        throw new HttpError(400, `Rôle invalide. Valeurs acceptées : ${ASSIGNABLE_ROLES.join(", ")}.`);
+      }
+    }
     const fields = pick(req.body || {}, SALESPERSON_FIELDS);
     if (fields.name !== undefined && !String(fields.name).trim()) {
       throw new HttpError(400, "A salesperson needs a name.");
@@ -126,6 +139,19 @@ router.patch("/salespersons/:id", requireUser, async (req, res, next) => {
       [req.params.id, ...keys.map((key) => fields[key]), teamScope(req)]
     );
     if (!rows.length) throw new HttpError(404, "That salesperson is not on your team.");
+    if (requestedRole !== null) {
+      const { rowCount } = await db.query(
+        `update public.profiles p
+            set role = $2
+           from public.salespersons s
+          where s.id = $1 and s.team_id = $3 and p.id = s.auth_id`,
+        [req.params.id, requestedRole, teamScope(req)]
+      );
+      if (!rowCount) {
+        throw new HttpError(400, "Ce commercial doit d'abord activer son invitation.");
+      }
+      rows[0].role = requestedRole;
+    }
     return res.json(rows[0]);
   } catch (err) {
     return next(err);

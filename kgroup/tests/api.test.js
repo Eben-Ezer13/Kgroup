@@ -122,7 +122,7 @@ function execute(sql, params = []) {
   }
 
   /* ---- salespersons ---- */
-  if (q.startsWith("select") && q.includes("from public.salespersons where team_id = $1 order by revenue")) {
+  if (q.startsWith("select") && q.includes("from public.salespersons s") && q.includes("where s.team_id = $1")) {
     const rows = store.salespersons
       .filter((s) => s.team_id === params[0])
       .sort((a, b) => (b.revenue || 0) - (a.revenue || 0));
