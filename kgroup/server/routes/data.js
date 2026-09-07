@@ -129,22 +129,34 @@ router.patch("/salespersons/:id", requireUser, async (req, res, next) => {
     }
     if (fields.badges !== undefined) fields.badges = JSON.stringify(fields.badges);
     const keys = Object.keys(fields);
-    if (!keys.length) throw new HttpError(400, "No salesperson changes supplied.");
+    if (!keys.length && requestedRole === null) {
+      throw new HttpError(400, "No salesperson changes supplied.");
+    }
 
-    const setSql = keys.map((key, index) => `"${key}" = $${index + 2}`).join(", ");
-    const { rows } = await db.query(
-      `update public.salespersons set ${setSql}
-         where id = $1 and team_id = $${keys.length + 2}
-       returning *`,
-      [req.params.id, ...keys.map((key) => fields[key]), teamScope(req)]
-    );
+    let rows;
+    if (keys.length) {
+      const setSql = keys.map((key, index) => `"${key}" = $${index + 2}`).join(", ");
+      const result = await db.query(
+        `update public.salespersons set ${setSql}
+           where id = $1 and team_id = $${keys.length + 2}
+         returning *`,
+        [req.params.id, ...keys.map((key) => fields[key]), teamScope(req)]
+      );
+      rows = result.rows;
+    } else {
+      const row = await db.one(
+        `select * from public.salespersons where id = $1 and team_id = $2`,
+        [req.params.id, teamScope(req)]
+      );
+      rows = row ? [row] : [];
+    }
     if (!rows.length) throw new HttpError(404, "That salesperson is not on your team.");
     if (requestedRole !== null) {
       const { rowCount } = await db.query(
         `update public.profiles p
             set role = $2
            from public.salespersons s
-          where s.id = $1 and s.team_id = $3 and p.id = s.auth_id`,
+          where s.id = $1 and s.team_id = $3 and p.salesperson_id = s.id`,
         [req.params.id, requestedRole, teamScope(req)]
       );
       if (!rowCount) {
@@ -380,6 +392,15 @@ router.post("/challenges", requireUser, async (req, res, next) => {
     const fields = pick(req.body || {}, CHALLENGE_FIELDS);
     if (!fields.title || !String(fields.title).trim()) {
       throw new HttpError(400, "A challenge needs a title.");
+    }
+    const target = Number(fields.target);
+    if (!Number.isInteger(target) || target <= 0) {
+      throw new HttpError(400, "A challenge needs a positive target in units.");
+    }
+    fields.target = target;
+    fields.current = fields.current === undefined ? 0 : Number(fields.current);
+    if (!Number.isInteger(fields.current) || fields.current < 0 || fields.current > target) {
+      throw new HttpError(400, "Challenge progress must be between zero and the target.");
     }
     if (fields.ends === "") fields.ends = null;
 

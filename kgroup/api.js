@@ -556,9 +556,9 @@
           KG.salespersons = reps.map(r => ({
             id: r.id, name: r.name, initials: initialsOf(r.name),
             city: r.city || "—", phone: r.phone || "—", email: r.email || "",
-            sales: r.sales || 0, todaySales: r.today_sales || 0, revenue: num(r.revenue),
+            sales: r.sales ?? 0, todaySales: r.today_sales ?? 0, revenue: num(r.revenue),
             status: r.status || "Active", level: r.level || "Rookie",
-            xp: r.xp || 0, xpToNext: r.xp_to_next || 1700, target: r.target || 200,
+            xp: r.xp ?? 0, xpToNext: r.xp_to_next ?? 0, target: r.target ?? 0,
             commission: num(r.commission),
             invite_code: r.invite_code || null, claimed: !!r.claimed,
             badges: r.badges || [], hue: r.hue != null ? r.hue : 150,
@@ -580,7 +580,7 @@
             return {
               id: c.id, icon: c.icon || "🏆", hue: c.hue || "var(--brand)",
               title: c.title, desc: c.description || "", reward: c.reward || "—",
-              current: c.current || 0, target: c.target || 100,
+              current: c.current ?? 0, target: c.target ?? 0,
               participants: KG.salespersons.length, daysLeft, hrsLeft,
             };
           });

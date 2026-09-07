@@ -44,7 +44,7 @@
           <div class="field full"><label>Title <span class="req">*</span></label><input class="input" id="chTitle" placeholder="e.g. Autumn Rush"></div>
           <div class="field full"><label>Description</label><textarea class="textarea" id="chDesc" placeholder="What's the goal?"></textarea></div>
           <div class="field full"><label>Reward <span class="req">*</span></label><input class="input" id="chReward" placeholder="e.g. 600 DHS bonus + free perfume"></div>
-          <div class="field"><label>Target (units)</label><input class="input" id="chTarget" type="number" value="100"></div>
+          <div class="field"><label for="chTarget">Target (units) <span class="req">*</span></label><input class="input" id="chTarget" type="number" min="1" step="1" placeholder="e.g. 250"></div>
           <div class="field"><label>Ends on</label><input class="input" id="chEnds" type="date"></div>
           <div class="field full"><label>Icon</label>
             <select class="select" id="chIcon">
@@ -134,7 +134,7 @@
 
       // Challenge leaderboard
       document.getElementById("chBoard").innerHTML = KG.salespersons.slice(0,6).map((s,i)=>{
-        const contrib = Math.round(187 * (0.28 - i*0.035));
+        const contrib = Number(s.sales) || 0;
         return `<div class="rank-row">
           <div class="rank-pos ${i<3?'top'+(i+1):''}">${i+1}</div>${avatar(s,42)}
           <div><div class="rank-name">${s.name}</div><div class="rank-sub">${s.city}</div></div>
@@ -144,13 +144,17 @@
       document.getElementById("createCh").addEventListener("click", async (e)=>{
         const title = document.getElementById("chTitle").value.trim();
         const reward = document.getElementById("chReward").value.trim();
+        const target = Number.parseInt(document.getElementById("chTarget").value, 10);
         if (!title)  { toast("error","Missing title","Give your challenge a title."); return; }
         if (!reward) { toast("error","Missing reward","Tell your team what they'll win."); return; }
+        if (!Number.isInteger(target) || target <= 0) {
+          toast("error","Missing target","Enter a positive target in units."); return;
+        }
         const ch = {
           title,
           description: document.getElementById("chDesc").value.trim() || null,
           reward,
-          target: parseInt(document.getElementById("chTarget").value, 10) || 100,
+          target,
           ends: document.getElementById("chEnds").value || null,
           icon: document.getElementById("chIcon").value || "🏆",
         };

@@ -120,6 +120,12 @@ function execute(sql, params = []) {
     }
     return { rows: [], rowCount: row ? 1 : 0 };
   }
+  if (q.startsWith("update public.profiles p set role")) {
+    const rep = store.salespersons.find((s) => s.id === params[0] && s.team_id === params[2]);
+    const row = rep && store.profiles.find((p) => p.salesperson_id === rep.id);
+    if (row) row.role = params[1];
+    return { rows: [], rowCount: row ? 1 : 0 };
+  }
 
   /* ---- salespersons ---- */
   if (q.startsWith("select") && q.includes("from public.salespersons s") && q.includes("where s.team_id = $1")) {
@@ -424,6 +430,10 @@ test("full admin CRUD round-trip", async () => {
 
 test("challenges are readable by the team and writable by admins", async () => {
   const c = await signUpAdmin("chal@kgroup.test");
+  const missingTarget = await c.call("/api/challenges", {
+    method: "POST", body: { title: "No implicit target", reward: "Bonus" },
+  });
+  assert.strictEqual(missingTarget.status, 400);
   const created = await c.call("/api/challenges", {
     method: "POST",
     body: { title: "October Sprint", reward: "Parfum offert", target: 200, ends: "2026-10-31", icon: "🏆" },
@@ -476,6 +486,12 @@ test("salespersons are blocked from admin-only writes", async () => {
   const profile = await repClient.call("/api/profile");
   assert.strictEqual(profile.body.role, "salesperson");
   assert.ok(profile.body.salesperson_id, "the invite links the login to the roster row");
+
+  const assigned = await admin.call("/api/salespersons/" + rep.body.id, {
+    method: "PATCH", body: { role: "relation_client" },
+  });
+  assert.strictEqual(assigned.status, 200, JSON.stringify(assigned.body));
+  assert.strictEqual(assigned.body.role, "relation_client");
 
   // Reads: allowed (the "team read" policies).
   assert.strictEqual((await repClient.call("/api/salespersons")).status, 200);

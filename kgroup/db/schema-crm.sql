@@ -66,6 +66,10 @@ begin
 end
 $mig$;
 
+-- An objective is business data, not a platform filler value. Existing
+-- databases created with schema.sql may still carry the old 100-unit default.
+alter table public.challenges alter column target drop default;
+
 create index if not exists idx_sales_client on public.sales (client_id);
 
 -- ---------- PARAMÈTRES DE RÉMUNÉRATION (une ligne par équipe) ------------

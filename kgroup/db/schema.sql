@@ -123,7 +123,7 @@ create table if not exists public.challenges (
   reward      text,
   icon        text default '🏆',
   hue         text default '#0B7A4B',
-  target      int  default 100,
+  target      int,
   current     int  default 0,
   ends        date,
   created_at  timestamptz default now()
