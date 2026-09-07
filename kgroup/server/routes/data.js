@@ -107,6 +107,31 @@ router.post("/salespersons", requireUser, async (req, res, next) => {
   }
 });
 
+router.patch("/salespersons/:id", requireUser, async (req, res, next) => {
+  try {
+    requireAdmin(req);
+    const fields = pick(req.body || {}, SALESPERSON_FIELDS);
+    if (fields.name !== undefined && !String(fields.name).trim()) {
+      throw new HttpError(400, "A salesperson needs a name.");
+    }
+    if (fields.badges !== undefined) fields.badges = JSON.stringify(fields.badges);
+    const keys = Object.keys(fields);
+    if (!keys.length) throw new HttpError(400, "No salesperson changes supplied.");
+
+    const setSql = keys.map((key, index) => `"${key}" = $${index + 2}`).join(", ");
+    const { rows } = await db.query(
+      `update public.salespersons set ${setSql}
+         where id = $1 and team_id = $${keys.length + 2}
+       returning *`,
+      [req.params.id, ...keys.map((key) => fields[key]), teamScope(req)]
+    );
+    if (!rows.length) throw new HttpError(404, "That salesperson is not on your team.");
+    return res.json(rows[0]);
+  } catch (err) {
+    return next(err);
+  }
+});
+
 router.delete("/salespersons/:id", requireUser, async (req, res, next) => {
   try {
     requireAdmin(req);

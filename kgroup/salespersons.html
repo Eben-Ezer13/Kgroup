@@ -20,6 +20,25 @@
     <button class="btn btn-primary" data-modal-open="#addModal"><span data-ic="plus"></span> <span data-i18n="btn.addSalesperson">Add Salesperson</span></button>
   </div>
 
+  <!-- Edit modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <div class="modal-head"><h3>Edit Salesperson</h3><button class="icon-btn" data-modal-close><span data-ic="x"></span></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="editId">
+        <div class="form-grid">
+          <div class="field full"><label>Full name <span class="req">*</span></label><input class="input" id="editName"></div>
+          <div class="field"><label>City</label><input class="input" id="editCity"></div>
+          <div class="field"><label>Phone</label><input class="input" id="editPhone"></div>
+          <div class="field"><label>Email</label><input class="input" id="editEmail" type="email"></div>
+          <div class="field"><label>Level</label><select class="select" id="editLevel"><option>Rookie</option><option>Bronze</option><option>Silver</option><option>Gold</option><option>Platinum</option><option>Diamond</option></select></div>
+          <div class="field"><label>Status</label><select class="select" id="editStatus"><option>Active</option><option>Inactive</option></select></div>
+        </div>
+      </div>
+      <div class="modal-foot"><button class="btn btn-ghost" data-modal-close>Cancel</button><button class="btn btn-primary" id="saveEdit">Save changes</button></div>
+    </div>
+  </div>
+
   <!-- Toolbar: search + filters -->
   <div class="table-tools reveal">
     <div class="search-box" style="min-width:260px;display:flex">
@@ -212,8 +231,18 @@
             </div>`;
           window.kgModal.open("#viewModal");
         }));
-        document.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () =>
-          toast("info","Edit salesperson","Editing is available when a backend is connected.")));
+        document.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () => {
+          const s = KG.salespersons.find(x => x.id === b.dataset.edit);
+          if (!s) return;
+          document.getElementById("editId").value = s.id;
+          document.getElementById("editName").value = s.name || "";
+          document.getElementById("editCity").value = s.city || "";
+          document.getElementById("editPhone").value = s.phone || "";
+          document.getElementById("editEmail").value = s.email || "";
+          document.getElementById("editLevel").value = s.level || "Rookie";
+          document.getElementById("editStatus").value = s.status || "Active";
+          window.kgModal.open("#editModal");
+        }));
         document.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => {
           const s = KG.salespersons.find(x => x.id === b.dataset.del);
           if (s) askDelete(s);
@@ -270,6 +299,31 @@
           if (tr) { tr.style.transition = "opacity .3s"; tr.style.opacity = "0"; setTimeout(() => tr.remove(), 320); }
         }
         pendingDel = null;
+      });
+
+      document.getElementById("saveEdit").addEventListener("click", async (e) => {
+        const id = document.getElementById("editId").value;
+        const name = document.getElementById("editName").value.trim();
+        if (!name) { toast("error", "Missing name", "Please enter the salesperson's full name."); return; }
+        const fields = {
+          name,
+          city: document.getElementById("editCity").value.trim() || null,
+          phone: document.getElementById("editPhone").value.trim() || null,
+          email: document.getElementById("editEmail").value.trim() || null,
+          level: document.getElementById("editLevel").value,
+          status: document.getElementById("editStatus").value,
+        };
+        try {
+          e.target.disabled = true;
+          await window.KGDB.updateSalesperson(id, fields);
+          window.kgModal.close(document.getElementById("editModal"));
+          toast("success", "Salesperson updated", "The team profile has been saved.");
+          if (window.KG_API_CONFIGURED) setTimeout(() => location.reload(), 500);
+        } catch (err) {
+          toast("error", "Could not save", err.message || "Please try again.");
+        } finally {
+          e.target.disabled = false;
+        }
       });
 
       document.getElementById("saveRep").addEventListener("click", async (e) => {

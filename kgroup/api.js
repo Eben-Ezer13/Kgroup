@@ -282,6 +282,11 @@
       return request("/salespersons", { method: "POST", body: rep });
     },
 
+    async updateSalesperson(id, fields) {
+      if (!(await ready())) return { demo: true };
+      return request("/salespersons/" + encodeURIComponent(id), { method: "PATCH", body: fields });
+    },
+
     async listSales(limit) {
       if (!(await ready())) return null;
       try {

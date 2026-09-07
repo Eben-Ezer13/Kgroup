@@ -139,6 +139,14 @@ function execute(sql, params = []) {
     store.salespersons.push(row);
     return { rows: [row], rowCount: 1 };
   }
+  if (q.startsWith("update public.salespersons set")) {
+    const row = store.salespersons.find((s) => s.id === params[0] && s.team_id === params[params.length - 1]);
+    if (row) {
+      const cols = [...sql.matchAll(/"([a-z_]+)" = \$\d+/g)].map((m) => m[1]);
+      cols.forEach((c, i) => { row[c] = params[i + 1]; });
+    }
+    return { rows: row ? [row] : [], rowCount: row ? 1 : 0 };
+  }
   if (q.startsWith("delete from public.salespersons")) {
     const i = store.salespersons.findIndex((s) => s.id === params[0] && s.team_id === params[1]);
     if (i >= 0) store.salespersons.splice(i, 1);
@@ -377,6 +385,14 @@ test("full admin CRUD round-trip", async () => {
   const list = await c.call("/api/salespersons");
   assert.strictEqual(list.status, 200);
   assert.strictEqual(list.body.length, 1);
+
+  const updated = await c.call("/api/salespersons/" + created.body.id, {
+    method: "PATCH",
+    body: { name: "Amine Updated", status: "Inactive" },
+  });
+  assert.strictEqual(updated.status, 200, JSON.stringify(updated.body));
+  assert.strictEqual(updated.body.name, "Amine Updated");
+  assert.strictEqual(updated.body.status, "Inactive");
 
   // A sale rolls up onto the rep, exactly as apply_sale() does
   const sale = await c.call("/api/sales", {

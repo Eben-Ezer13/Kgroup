@@ -212,3 +212,72 @@ $fn$;
 insert into public.compensation_settings (team_id)
   select t.id from public.teams t
   on conflict (team_id) do nothing;
+
+-- ---------- ESPACE ADMINISTRATEUR PARTAGE -------------------------------
+-- Les premières versions créaient une équipe par administrateur. On conserve
+-- les lignes d'équipe pour ne rien casser, mais toutes les données métier et
+-- tous les profils admin sont ramenés dans l'espace le plus ancien. Le trigger
+-- de schema.sql utilise ensuite ce même espace pour les nouvelles inscriptions.
+do $mig$
+declare
+  v_workspace uuid;
+begin
+  select id into v_workspace
+    from public.teams
+   order by created_at nulls first, id
+   limit 1;
+
+  if v_workspace is not null then
+    -- A phone number was unique only inside each old team. Keep the oldest
+    -- client row when two teams had the same number, and repoint its sales.
+    update public.sales s
+       set client_id = (
+         select min(keeper.id)
+           from public.clients duplicate
+           join public.clients keeper
+             on keeper.phone_e164 = duplicate.phone_e164
+            and keeper.id < duplicate.id
+          where duplicate.id = s.client_id
+       )
+     where exists (
+       select 1 from public.clients duplicate
+        where duplicate.id = s.client_id
+          and duplicate.phone_e164 is not null
+          and exists (
+            select 1 from public.clients keeper
+             where keeper.phone_e164 = duplicate.phone_e164
+               and keeper.id < duplicate.id
+          )
+     );
+    delete from public.birthday_reminders br
+     using public.clients duplicate
+     where br.client_id = duplicate.id
+       and duplicate.phone_e164 is not null
+       and exists (
+         select 1 from public.clients keeper
+          where keeper.phone_e164 = duplicate.phone_e164
+            and keeper.id < duplicate.id
+       );
+    delete from public.clients duplicate
+     where duplicate.phone_e164 is not null
+       and exists (
+         select 1 from public.clients keeper
+          where keeper.phone_e164 = duplicate.phone_e164
+            and keeper.id < duplicate.id
+       );
+
+    -- One settings row is allowed per workspace.
+    delete from public.compensation_settings where team_id <> v_workspace;
+    update public.profiles set team_id = v_workspace where role = 'admin';
+    update public.salespersons set team_id = v_workspace where team_id is not null;
+    update public.sales set team_id = v_workspace where team_id is not null;
+    update public.challenges set team_id = v_workspace where team_id is not null;
+    update public.training_progress set team_id = v_workspace where team_id is not null;
+    update public.quiz_attempts set team_id = v_workspace where team_id is not null;
+    update public.notifications set team_id = v_workspace where team_id is not null;
+    update public.clients set team_id = v_workspace where team_id is not null;
+    update public.compensation_settings set team_id = v_workspace where team_id is not null;
+    update public.payroll_periods set team_id = v_workspace where team_id is not null;
+  end if;
+end
+$mig$;
