@@ -142,8 +142,13 @@ async function attachUser(req, _res, next) {
     req.user = user;
     req.profile = await db.one(`select * from public.profiles where id = $1`, [user.id]);
     if (req.profile && req.profile.role === "admin" && process.env.NODE_ENV !== "test") {
-      const workspaceId = await ensureSharedAdminWorkspace();
-      if (workspaceId) req.profile.team_id = workspaceId;
+      try {
+        const workspaceId = await ensureSharedAdminWorkspace();
+        if (workspaceId) req.profile.team_id = workspaceId;
+      } catch (err) {
+        // Workspace repair must never turn a valid login into a generic 500.
+        console.error("[workspace] shared-team repair deferred:", err.message);
+      }
     }
   } catch (err) {
     // A database hiccup must not be mistaken for "signed out" on a write path,
