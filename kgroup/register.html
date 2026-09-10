@@ -131,7 +131,7 @@
         return;
       }
 
-      if (!(await A.ready())) {
+      if (A.isDemo()) {
         // Demo mode — let it proceed for preview purposes
         $("inviteBanner").classList.remove("hidden");
         $("inviteName").textContent = "Demo Salesperson";
@@ -141,19 +141,12 @@
       }
 
       // Look up who this invite belongs to
-      const info = await A.inviteInfo(code);
-      if (!info) {
-        showMsg("error", "This invite is invalid or has already been used.");
-        $("submitBtn").disabled = true;
-        $("sub").textContent = "Invite unavailable.";
-        return;
-      }
-      inviteName = info.name || "";
+      // Invitation validity is enforced atomically by the API at submission time.
+      inviteName = "Salesperson";
       $("inviteBanner").classList.remove("hidden");
-      $("inviteName").textContent = info.name || "Salesperson";
-      $("inviteTeam").textContent = info.team_name ? ("Joining " + info.team_name) : "Joining your team";
-      $("inviteAv").textContent = (info.name || "?").split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
-      if (info.email) $("email").value = info.email;
+      $("inviteName").textContent = "Team invitation";
+      $("inviteTeam").textContent = "Complete your account to join the team";
+      $("inviteAv").textContent = "KG";
     })();
 
     // Submit → sign up with the salesperson role + invite code (trigger claims the roster row)

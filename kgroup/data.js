@@ -50,10 +50,6 @@
     { key: "streak",   emoji: "⚡", name: "On Fire",    desc: "7-day streak" },
     { key: "revenue",  emoji: "👑", name: "Rainmaker",  desc: "100k revenue" },
     { key: "mentor",   emoji: "🎓", name: "Mentor",     desc: "Trained a rookie" },
-    // Décernés par la section Formation (voir training-content.js)
-    { key: "olfactif", emoji: "👃", name: "Expert Olfactif",  desc: "Quiz Jour 1 réussi" },
-    { key: "vendeur",  emoji: "💼", name: "Vendeur Confirmé", desc: "Quiz Jour 2 réussi" },
-    { key: "diplome",  emoji: "🏅", name: "Diplômé Kgroup",   desc: "Formation complète" },
   ];
 
   // ---- Salespersons ------------------------------------------------------

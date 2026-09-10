@@ -118,9 +118,9 @@
             <a href="#" class="link" id="switchMode">Create an account</a>
           </p>
 
-          <div class="demo-hint hidden" id="demoHint">
-            ⚙️ <b>Demo mode</b> — any credentials work. Start the API
-            (<b>npm start</b>) with a Neon <b>DATABASE_URL</b> to enable real accounts.
+          <div class="demo-hint" id="demoHint">
+            ⚙️ <b>Demo mode</b> uses local sample data and never contacts the API.
+            <button type="button" class="link" id="demoModeBtn">Use demo mode</button>
           </div>
         </form>
       </div>
@@ -149,21 +149,32 @@
     const A = window.KGAuth;
     let mode = "signin"; // 'signin' | 'signup'
 
+    // Demo mode is explicit so the real API never silently falls back to fake data.
+    if (A.isDemo()) { $("email").value = "admin@kgroup.ma"; $("password").value = "kgroup2026"; }
+    $("demoModeBtn").textContent = A.isDemo() ? "Use real accounts" : "Use demo mode";
+    $("demoModeBtn").addEventListener("click", () => { A.useDemo(!A.isDemo()); location.reload(); });
+
     // Send an authenticated user to the right home for their role
     async function goHome() {
       const role = await A.role();
       window.location.href = A.homeForRole(role);
     }
 
-    // Show the demo banner (and prefill) only once we know the API is absent,
-    // then skip this page entirely if a session already exists.
+    // If already signed in, skip the login page
     (async () => {
-      if (!(await A.ready())) {
-        $("demoHint").classList.remove("hidden");
-        $("email").value = "admin@kgroup.ma";
-        $("password").value = "kgroup2026";
+      const params = new URLSearchParams(location.search);
+      if (params.get("verify")) {
+        try { await A.confirmEmail(params.get("verify")); history.replaceState({}, "", "login.html"); showMsg("info", "Email confirmed. You can now sign in."); }
+        catch (err) { showMsg("error", err.message || "Confirmation link is invalid or expired."); }
       }
-      const u = await A.user();
+      if (params.get("reset")) {
+        const newPassword = window.prompt("Choose a new password (at least 10 characters):");
+        if (newPassword) {
+          try { await A.completePasswordReset(params.get("reset"), newPassword); history.replaceState({}, "", "login.html"); showMsg("info", "Password updated. You can now sign in."); }
+          catch (err) { showMsg("error", err.message || "Reset link is invalid or expired."); }
+        }
+      }
+      const u = await A.user().catch(() => null);
       if (u) { await goHome(); return; }
       document.querySelector(".preloader")?.classList.add("done");
     })();
@@ -224,11 +235,10 @@
           // Salespersons join through an invite link → register.html.
           const res = await A.signUp(email, password, name || email.split("@")[0], { role: "admin" });
           if (res && res.demo) { await goHome(); return; }
-          // If email confirmation is ON, there is no session yet
-          if (res && res.user && !res.session) {
+          if (res && res.pendingVerification) {
             btn.disabled = false; btn.textContent = label;
             setMode("signin");
-            showMsg("info", "Account created! Check your inbox to confirm, then sign in.");
+            showMsg("info", res.emailSent ? "Account created! Check your inbox to confirm, then sign in." : "Account created. Email delivery must be configured before confirmation can be sent.");
             return;
           }
           window.toast("success", "Welcome to KGROUP", "Setting up your workspace…");
@@ -250,10 +260,10 @@
       try {
         const res = await A.signInWithGoogle();
         if (res && res.demo) window.location.href = "dashboard.html";
-        // otherwise the browser is redirected to Google by the API
+        // Google is deliberately unavailable until external credentials are configured.
       } catch (err) { showMsg("error", err.message || "Google sign-in failed."); }
     });
-    $("ssoBtn").addEventListener("click", () => window.toast("info", "SSO", "Enterprise SSO is not enabled on this deployment."));
+    $("ssoBtn").addEventListener("click", () => window.toast("info", "SSO", "Enterprise SSO is not configured."));
 
     // ---- Forgot password ----
     $("forgotLink").addEventListener("click", async (e) => {
@@ -263,7 +273,7 @@
       try {
         const res = await A.resetPassword(email);
         showMsg("info", res && res.demo
-          ? "Demo mode: start the API to send real reset emails."
+          ? "Demo mode: password-reset emails are unavailable."
           : "Password reset link sent — check your inbox.");
       } catch (err) { showMsg("error", err.message || "Could not send reset email."); }
     });

@@ -91,25 +91,10 @@
   .note b{color:#8a6500}
   .tip{background:var(--brand-soft);border-left:4px solid var(--brand);border-radius:8px;padding:12px 15px;margin:14px 0;font-size:13px}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
   .role-card{border:1px solid var(--line);border-radius:12px;padding:16px 18px}
   .role-card h4{color:var(--brand-dark);font-size:15px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
   .role-card ul{margin-left:16px;font-size:13px}
   .foot{position:absolute;bottom:12mm;left:22mm;right:22mm;display:flex;justify-content:space-between;font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
-
-  /* Message type (WhatsApp) */
-  .msg{
-    background:#f0f7f3;border:1px solid var(--line);border-left:4px solid #25D366;
-    border-radius:8px;padding:14px 16px;margin:12px 0;font-size:13px;white-space:pre-line;
-  }
-  /* Flux : etape -> etape */
-  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0}
-  .flow span{background:var(--brand-soft);color:var(--brand-dark);border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:600}
-  .flow i{color:var(--brand);font-style:normal;font-weight:700}
-  /* Etats de paie */
-  .state{display:inline-block;border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700}
-  .state.en{background:var(--brand-soft);color:var(--brand-dark)}
-  .state.fig{background:#eceff0;color:#4a5a54}
 
   /* ---------- Print ---------- */
   @media print{
@@ -118,7 +103,7 @@
     .page:last-child{page-break-after:auto}
     .no-print{display:none}
     h2{page-break-after:avoid}
-    .card,.role-card,table,.note,.tip,.msg{page-break-inside:avoid}
+    .card,.role-card,table,.note,.tip{page-break-inside:avoid}
   }
   @page{size:A4;margin:0}
 
@@ -143,13 +128,13 @@
 <!-- ============ COVER ============ -->
 <section class="page cover">
   <div class="logo">🌸</div>
-  <div class="pill">Guide d'utilisation • v2.0</div>
+  <div class="pill">Guide d'utilisation • v1.0</div>
   <h1>Plateforme de Performance Commerciale</h1>
   <div class="sub">KGroup Parfumery</div>
   <div class="tag">« La senteur du luxe »</div>
   <div class="meta">
-    Manuel complet — Administrateurs · Commerciaux · Relation client<br>
-    Équipe · Ventes · Clients &amp; anniversaires · Rémunération · Formation · Classements &amp; défis
+    Manuel complet — Administrateurs & Vendeurs<br>
+    Gestion d'équipe · Enregistrement des ventes · Classements · Défis · Commissions & bonus
   </div>
 </section>
 
@@ -157,37 +142,26 @@
 <section class="page">
   <div class="kicker">Bienvenue</div>
   <h2><span class="num">1.</span> Présentation de la plateforme</h2>
-  <p class="lead">Un tableau de bord tout-en-un pour piloter l'équipe commerciale de KGroup Parfumery : ventes en temps réel, portefeuille client, anniversaires, rémunération calculée automatiquement, formation et classements motivants.</p>
+  <p class="lead">Un tableau de bord tout-en-un pour piloter l'équipe commerciale de KGroup Parfumery : suivi des ventes en temps réel, classements motivants, commissions et bonus calculés automatiquement.</p>
 
-  <p>La plateforme fonctionne avec <strong>trois types de comptes</strong> qui n'ont pas les mêmes droits :</p>
-  <div class="three">
+  <p>La plateforme fonctionne avec <strong>deux types de comptes</strong> qui n'ont pas les mêmes droits :</p>
+  <div class="two">
     <div class="role-card">
       <h4>👑 Administrateur</h4>
       <ul>
         <li>Crée et gère l'équipe</li>
-        <li>Voit toutes les ventes et tous les clients</li>
+        <li>Voit toutes les ventes et tous les rapports</li>
         <li>Génère les liens d'invitation</li>
-        <li>Crée défis et récompenses</li>
-        <li>Pilote la <strong>rémunération</strong></li>
+        <li>Crée des défis et récompenses</li>
       </ul>
     </div>
     <div class="role-card">
-      <h4>🧑‍💼 Commercial</h4>
+      <h4>🧑‍💼 Vendeur</h4>
       <ul>
-        <li>Enregistre ses ventes</li>
-        <li>Suit <strong>ses</strong> clients</li>
-        <li>Voit sa rémunération estimée</li>
-        <li>Suit XP, niveau, badges</li>
-        <li>Fait la formation</li>
-      </ul>
-    </div>
-    <div class="role-card">
-      <h4>💚 Relation client</h4>
-      <ul>
-        <li>Voit <strong>tous</strong> les clients de l'équipe</li>
-        <li>Reçoit tous les rappels d'anniversaire</li>
-        <li>Contacte les clients par WhatsApp</li>
-        <li>Pas d'accès à la rémunération</li>
+        <li>Enregistre ses propres ventes</li>
+        <li>Suit son tableau de bord perso (XP, niveau, badges)</li>
+        <li>Voit les classements et défis partagés</li>
+        <li>Consulte ses commissions et bonus</li>
       </ul>
     </div>
   </div>
@@ -196,12 +170,12 @@
   <ol class="steps">
     <li>Ouvrez le site : <code>https://kgroupmanagement.netlify.app</code></li>
     <li>Saisissez votre <strong>e-mail</strong> et votre <strong>mot de passe</strong>, puis cliquez sur <strong>Se connecter</strong>.</li>
-    <li>Selon votre rôle, vous arrivez sur le <strong>tableau de bord admin</strong>, votre <strong>tableau de bord commercial</strong>, ou directement sur la page <strong>Clients</strong>.</li>
+    <li>Selon votre rôle, vous arrivez sur le <strong>Tableau de bord admin</strong> ou sur votre <strong>tableau de bord vendeur</strong>.</li>
   </ol>
 
-  <div class="tip">💡 <b>Langue &amp; thème :</b> en haut à droite, basculez entre <strong>Français / Anglais</strong> et activez le <strong>mode sombre</strong>. Vos préférences sont mémorisées sur votre appareil.</div>
+  <div class="tip">💡 <b>Langue & thème :</b> en haut à droite, vous pouvez basculer entre <strong>Français / Anglais</strong> et activer le <strong>mode sombre</strong>. Vos préférences sont mémorisées.</div>
 
-  <div class="note">🔑 <b>Mot de passe oublié ?</b> Cliquez sur « Mot de passe oublié » sur la page de connexion. Vous recevez un e-mail avec un lien qui ouvre une page où <b>choisir un nouveau mot de passe</b>. Le lien est valable <b>60 minutes</b> et ne fonctionne <b>qu'une seule fois</b>.</div>
+  <div class="note">🔑 <b>Mot de passe oublié ?</b> Cliquez sur « Mot de passe oublié » sur la page de connexion. Un e-mail vous est envoyé avec un lien pour définir un nouveau mot de passe. <b>Ouvrez ce lien rapidement</b> (il expire après un moment).</div>
 
   <div class="foot"><span>KGroup Parfumery — Guide d'utilisation</span><span>Page 1</span></div>
 </section>
@@ -209,42 +183,32 @@
 <!-- ============ PAGE 2 — Admin: équipe & invitations ============ -->
 <section class="page">
   <div class="kicker">Pour les administrateurs</div>
-  <h2><span class="num">2.</span> Gérer l'équipe &amp; inviter des commerciaux</h2>
-  <p class="lead">L'admin possède une équipe. Chaque commercial rejoint l'équipe via un lien d'invitation à usage unique.</p>
+  <h2><span class="num">2.</span> Gérer l'équipe & inviter des vendeurs</h2>
+  <p class="lead">L'admin possède une équipe. Chaque vendeur rejoint l'équipe via un lien d'invitation à usage unique.</p>
 
   <h3>Créer un compte administrateur</h3>
   <ol class="steps">
     <li>Sur la page de connexion, cliquez sur <strong>Créer un compte</strong>.</li>
-    <li>Renseignez nom, e-mail et mot de passe (6 caractères minimum).</li>
-    <li>Vous êtes connecté immédiatement et devenez <strong>propriétaire d'une équipe</strong> vide.</li>
+    <li>Renseignez nom, e-mail et mot de passe.</li>
+    <li>Confirmez votre e-mail via le lien reçu — vous devenez <strong>propriétaire d'une équipe</strong> vide.</li>
   </ol>
 
-  <h3>Ajouter un commercial (invitation)</h3>
+  <h3>Ajouter un vendeur (invitation)</h3>
   <ol class="steps">
     <li>Menu <strong>Vendeurs</strong> → bouton <strong>Ajouter un vendeur</strong>.</li>
-    <li>Renseignez son nom (et ses informations), puis <strong>Enregistrer</strong>.</li>
+    <li>Renseignez le nom (et infos) du vendeur, puis <strong>Enregistrer</strong>.</li>
     <li>Une fenêtre affiche un <strong>lien d'invitation unique</strong> (ex. <code>register.html?invite=CODE</code>). Copiez-le.</li>
-    <li>Envoyez ce lien au commercial (WhatsApp, e-mail…).</li>
-    <li>Il ouvre le lien, choisit son mot de passe → son compte est créé et <strong>rattaché à votre équipe</strong> automatiquement.</li>
+    <li>Envoyez ce lien au vendeur (WhatsApp, e-mail…).</li>
+    <li>Le vendeur ouvre le lien, choisit son mot de passe → son compte est créé et <strong>rattaché à votre équipe</strong> automatiquement.</li>
   </ol>
 
-  <div class="note">🔒 <b>Sécurité :</b> chaque lien d'invitation est <b>à usage unique</b> et cesse de fonctionner dès qu'il a servi. Un commercial ne voit que ses propres données et celles partagées (classements, défis) — jamais les ventes ni les clients des autres.</div>
-
-  <h3>Donner l'accès à tout le portefeuille client</h3>
-  <p>Pour qu'une personne suive la relation client de <strong>toute l'équipe</strong> (et reçoive tous les rappels d'anniversaire) :</p>
-  <ol class="steps">
-    <li>Menu <strong>Clients</strong> → descendez jusqu'à la carte <strong>🔐 Accès au portefeuille client</strong>.</li>
-    <li>En face du membre concerné, cliquez sur <strong>Donner l'accès global</strong>.</li>
-    <li>Son rôle devient <strong>Relation client</strong>. Le bouton permet de revenir en arrière à tout moment.</li>
-  </ol>
-
-  <div class="tip">👑 Cette carte n'apparaît que pour les <strong>administrateurs</strong>. Un admin ne peut pas modifier son propre rôle : l'équipe ne peut donc jamais se retrouver sans administrateur.</div>
+  <div class="note">🔒 <b>Sécurité :</b> chaque lien d'invitation est <b>à usage unique</b>. Un vendeur ne peut voir que ses propres données et celles partagées (classements, défis) — jamais les ventes des autres.</div>
 
   <h3>Depuis la page Vendeurs, l'admin peut :</h3>
   <div class="tag-row">
     <span class="tag">Rechercher un vendeur</span>
-    <span class="tag">Trier &amp; filtrer le tableau</span>
-    <span class="tag">Voir les ventes &amp; le revenu de chacun</span>
+    <span class="tag">Trier & filtrer le tableau</span>
+    <span class="tag">Voir les ventes & le revenu de chacun</span>
     <span class="tag">Supprimer un vendeur</span>
     <span class="tag">Régénérer un lien d'invitation</span>
   </div>
@@ -256,34 +220,20 @@
 <section class="page">
   <div class="kicker">Cœur de l'activité</div>
   <h2><span class="num">3.</span> Enregistrer une vente</h2>
-  <p class="lead">Chaque vente met à jour instantanément les classements, l'XP, les commissions, la rémunération du mois — et crée ou retrouve automatiquement la fiche du client.</p>
+  <p class="lead">Chaque vente saisie met à jour instantanément les classements, l'XP, les commissions et les bonus. Aucune saisie manuelle de chiffres — tout est calculé automatiquement.</p>
 
   <ol class="steps">
     <li>Ouvrez le menu <strong>Ventes</strong>.</li>
-    <li>Saisissez le <strong>numéro de téléphone</strong> du client. <em>(voir encadré ci-dessous)</em></li>
-    <li>Complétez le <strong>nom</strong> et, si vous la connaissez, la <strong>date d'anniversaire</strong>.</li>
+    <li>Renseignez le <strong>client</strong>.</li>
     <li>Choisissez le <strong>produit</strong> : 30 ml, 50 ml ou 100 ml.</li>
     <li>Indiquez la <strong>quantité</strong>.</li>
     <li>Choisissez le <strong>mode de paiement</strong> : Espèces, Virement ou Mobile Money.</li>
-    <li>Validez → commission calculée et vente remontée partout.</li>
+    <li>Validez → la <strong>commission est calculée automatiquement</strong> et la vente remonte partout.</li>
   </ol>
 
-  <div class="card brandbar">
-    <strong>📱 Le numéro de téléphone reconnaît le client tout seul</strong>
-    <p style="margin-top:8px;margin-bottom:0">Dès que vous finissez de taper le numéro, la plateforme cherche le client :</p>
-    <ul style="margin-top:8px;margin-bottom:0">
-      <li><strong>Client déjà connu</strong> → son nom et son anniversaire se remplissent seuls, et le message « Client connu » s'affiche. <b>Ne le ressaisissez pas</b> : la vente s'ajoute à sa fiche existante.</li>
-      <li><strong>Nouveau client</strong> → le message « Nouveau client » s'affiche. Sa fiche sera créée avec la vente, et vous en devenez le <strong>commercial responsable</strong>.</li>
-    </ul>
-  </div>
-
-  <div class="tip">✍️ Peu importe comment vous écrivez le numéro — <code>0612345678</code>, <code>06 12 34 56 78</code> ou <code>+212612345678</code> désignent le même client. <b>Aucun doublon n'est possible.</b></div>
-
-  <div class="note">⚠️ <b>Numéro invalide :</b> si le numéro est incomplet ou incorrect, la vente est refusée avec un message d'erreur. Corrigez le numéro, ou <b>laissez le champ vide</b> : la vente sera enregistrée au nom du client sans créer de fiche.</div>
-
-  <h3>Catalogue &amp; commissions (contrat KGroup)</h3>
+  <h3>Catalogue & commissions (contrat KGroup)</h3>
   <table>
-    <thead><tr><th>Produit</th><th>Prix de vente</th><th>Commission commercial</th></tr></thead>
+    <thead><tr><th>Produit</th><th>Prix de vente</th><th>Commission vendeur</th></tr></thead>
     <tbody>
       <tr><td>Parfum 30 ml</td><td>50 DHS</td><td>5 DHS</td></tr>
       <tr><td>Parfum 50 ml</td><td>80 DHS</td><td>8 DHS</td></tr>
@@ -291,162 +241,37 @@
     </tbody>
   </table>
 
-  <h3>Ce qui se met à jour automatiquement</h3>
+  <div class="tip">👤 <b>Vendeur :</b> vous ne pouvez enregistrer que <strong>vos propres ventes</strong> — le vendeur est verrouillé sur votre compte. <b>Admin :</b> vous pouvez enregistrer des ventes pour l'équipe et tout voir remonter dans les rapports.</div>
+
+  <h3>Ce qui se met à jour automatiquement à chaque vente</h3>
   <div class="tag-row">
     <span class="tag">Chiffre d'affaires</span>
     <span class="tag">Nombre d'unités</span>
-    <span class="tag">XP &amp; niveau</span>
+    <span class="tag">Points d'XP & niveau</span>
     <span class="tag">Badges</span>
     <span class="tag">Classements</span>
-    <span class="tag">Commissions</span>
-    <span class="tag">Rémunération du mois</span>
-    <span class="tag">Fiche client</span>
-    <span class="tag">Total acheté par le client</span>
+    <span class="tag">Commissions cumulées</span>
+    <span class="tag">Progression des bonus</span>
   </div>
 
   <div class="foot"><span>KGroup Parfumery — Guide d'utilisation</span><span>Page 3</span></div>
 </section>
 
-<!-- ============ PAGE 4 — Clients ============ -->
+<!-- ============ PAGE 4 — Gains: commissions & bonus ============ -->
 <section class="page">
-  <div class="kicker">Relation client</div>
-  <h2><span class="num">4.</span> Le portefeuille clients</h2>
-  <p class="lead">Le menu <strong>Clients</strong> rassemble toutes les personnes à qui votre équipe a vendu. Les fiches se créent seules au fil des ventes — vous n'avez rien à saisir en double.</p>
+  <div class="kicker">Rémunération</div>
+  <h2><span class="num">4.</span> Commissions, bonus & récompenses</h2>
+  <p class="lead">La plateforme suit automatiquement combien chaque vendeur gagne, selon les règles du contrat KGroup Parfumery.</p>
 
-  <h3>Qui voit quoi</h3>
-  <table>
-    <thead><tr><th>Votre rôle</th><th>Clients visibles</th></tr></thead>
-    <tbody>
-      <tr><td>👑 Administrateur</td><td>Tous les clients de l'équipe</td></tr>
-      <tr><td>💚 Relation client</td><td>Tous les clients de l'équipe</td></tr>
-      <tr><td>🧑‍💼 Commercial</td><td>Uniquement les clients dont il est responsable</td></tr>
-    </tbody>
-  </table>
-
-  <h3>Rechercher &amp; filtrer</h3>
-  <ul>
-    <li><strong>Recherche</strong> — tapez un <strong>nom</strong> ou un <strong>numéro</strong> (dans n'importe quel format).</li>
-    <li><strong>Commercial</strong> — n'afficher que le portefeuille d'une personne.</li>
-    <li><strong>Mois d'anniversaire</strong> — préparer une campagne, par exemple tous les anniversaires de décembre.</li>
-    <li><strong>Réinitialiser</strong> — revenir à la liste complète.</li>
-  </ul>
-
-  <h3>La fiche client</h3>
-  <p>Cliquez sur <strong>Fiche</strong> au bout d'une ligne. Vous y trouvez :</p>
-  <div class="two">
-    <div class="role-card">
-      <h4>📇 Informations</h4>
-      <ul>
-        <li>Téléphone et anniversaire</li>
-        <li>Commercial responsable</li>
-        <li>Ville et notes</li>
-        <li>Client depuis (date)</li>
-      </ul>
-    </div>
-    <div class="role-card">
-      <h4>📈 Activité</h4>
-      <ul>
-        <li>Nombre de ventes</li>
-        <li>Montant total acheté</li>
-        <li>Date de la dernière vente</li>
-        <li>Historique complet des achats</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="tip">💬 Le bouton <strong>Écrire sur WhatsApp</strong> est présent sur la fiche et sur chaque ligne du tableau. Voir la page suivante.</div>
-
-  <h3>Créer un client à la main</h3>
-  <p>Utile pour préparer un contact avant toute vente. Bouton <strong>Nouveau client</strong> en haut à droite. Seul le <strong>nom</strong> est obligatoire.</p>
-
-  <div class="note">👥 <b>Un client, un responsable.</b> Le commercial responsable est celui qui a fait la première vente. Si un collègue vend ensuite à ce même client, <b>la vente lui est bien attribuée</b> (commission comprise), mais le responsable de la relation ne change pas. Seuls un admin ou un chargé de relation client peuvent le réattribuer.</p>
-
-  <div class="foot"><span>KGroup Parfumery — Guide d'utilisation</span><span>Page 4</span></div>
-</section>
-
-<!-- ============ PAGE 5 — Anniversaires & WhatsApp ============ -->
-<section class="page">
-  <div class="kicker">Fidélisation</div>
-  <h2><span class="num">5.</span> Anniversaires &amp; WhatsApp</h2>
-  <p class="lead">Un anniversaire souhaité, c'est un client qui revient. La plateforme les surveille pour vous et prépare le message.</p>
-
-  <h3>Le tableau des anniversaires</h3>
-  <p>En haut du menu <strong>Clients</strong>, trois compteurs :</p>
-  <div class="three">
-    <div class="role-card"><h4>🎉 Aujourd'hui</h4><p style="font-size:13px;margin:0">À souhaiter <strong>maintenant</strong>.</p></div>
-    <div class="role-card"><h4>🎂 Demain</h4><p style="font-size:13px;margin:0">Pour anticiper.</p></div>
-    <div class="role-card"><h4>📅 Cette semaine</h4><p style="font-size:13px;margin:0">Les 7 prochains jours.</p></div>
-  </div>
-  <p>En dessous, chaque client concerné apparaît sur une carte avec son <strong>numéro</strong>, sa <strong>date</strong>, son <strong>commercial responsable</strong> et un bouton WhatsApp.</p>
-
-  <h3>Les rappels automatiques</h3>
-  <p>Vous n'avez <strong>pas besoin d'ouvrir la page</strong> pour être prévenu. La plateforme vérifie les anniversaires toute seule et dépose une notification (icône 🔔 en haut) :</p>
-  <div class="flow">
-    <span>J-1 · la veille</span><i>→</i><span>🎂 Anniversaire demain</span>
-  </div>
-  <div class="flow">
-    <span>Jour J</span><i>→</i><span>🎉 Anniversaire aujourd'hui</span>
-  </div>
-  <p>Chaque notification rappelle le nom du client, son téléphone, sa date et son commercial responsable.</p>
-
-  <div class="tip">🕐 Les dates sont calculées à l'heure du <strong>Maroc (Africa/Casablanca)</strong>, quel que soit l'endroit d'où vous consultez la plateforme. Un même rappel n'est <strong>jamais envoyé deux fois</strong>.</div>
-
-  <div class="note">🎂 <b>Né un 29 février ?</b> Les années sans 29 février, l'anniversaire est fêté le <b>28 février</b>. Personne n'est oublié.</div>
-
-  <h3>Écrire sur WhatsApp</h3>
-  <ol class="steps">
-    <li>Cliquez sur <strong>💬 Écrire sur WhatsApp</strong> (carte d'anniversaire, ligne du tableau, ou fiche client).</li>
-    <li>WhatsApp s'ouvre — l'application sur téléphone, WhatsApp Web sur ordinateur — sur la conversation du client.</li>
-    <li>Le message est <strong>déjà écrit</strong>, avec le prénom du client inséré.</li>
-    <li><strong>Relisez, modifiez si vous voulez, puis envoyez.</strong></li>
-  </ol>
-
-  <div class="note">✋ <b>Rien n'est envoyé automatiquement.</b> La plateforme prépare le message ; c'est <b>vous</b> qui appuyez sur « Envoyer » dans WhatsApp. Vous gardez la main sur chaque message.</div>
-
-  <p style="margin-top:14px"><strong>Le message préparé :</strong></p>
-  <div class="msg">Bonjour <strong>[Nom du client]</strong> 🎉
-
-Toute l'équipe Kgroup Parfumery vous souhaite un très joyeux anniversaire !
-
-À cette occasion, nous avons le plaisir de vous offrir une promotion exceptionnelle pour célébrer votre anniversaire avec nous.
-
-Profitez-en et n'hésitez pas à nous contacter pour découvrir votre offre.
-
-Encore joyeux anniversaire ! 🎂
-
-Kgroup Parfumery</div>
-
-  <div class="tip">📵 Si un client n'a <strong>pas de numéro</strong> enregistré, le bouton est grisé. Ajoutez son numéro depuis sa fiche pour l'activer.</div>
-
-  <div class="foot"><span>KGroup Parfumery — Guide d'utilisation</span><span>Page 5</span></div>
-</section>
-
-<!-- ============ PAGE 6 — Ma rémunération (commercial) ============ -->
-<section class="page">
-  <div class="kicker">Pour les commerciaux</div>
-  <h2><span class="num">6.</span> Ma rémunération</h2>
-  <p class="lead">Votre tableau de bord affiche en permanence ce que vous avez gagné ce mois-ci, recalculé à chaque vente enregistrée.</p>
-
-  <h3>La carte « Ma rémunération »</h3>
-  <p>Sur votre tableau de bord, elle détaille :</p>
-  <table>
-    <thead><tr><th>Ligne</th><th>D'où ça vient</th></tr></thead>
-    <tbody>
-      <tr><td>Salaire fixe</td><td>Défini par l'administration (0 DHS si le contrat n'en prévoit pas)</td></tr>
-      <tr><td>+ Commissions <em>(Art. 3)</em></td><td>Somme des commissions de <strong>vos ventes du mois</strong></td></tr>
-      <tr><td>+ Bonus du mois <em>(Art. 4)</em></td><td>Palier atteint selon <strong>le nombre de ventes du mois</strong></td></tr>
-      <tr><td><strong>= Rémunération estimée</strong></td><td>Le total</td></tr>
-    </tbody>
-  </table>
-
-  <h3>Commission par vente (Art. 3)</h3>
+  <h3>Commission par vente</h3>
+  <p>Vous gagnez une commission sur <strong>chaque vente</strong> :</p>
   <ul>
     <li>Parfum <strong>30 ml</strong> → <strong>5 DHS</strong></li>
     <li>Parfum <strong>50 ml</strong> → <strong>8 DHS</strong></li>
     <li>Parfum <strong>100 ml</strong> → <strong>15 DHS</strong></li>
   </ul>
 
-  <h3>Bonus mensuels (Art. 4)</h3>
+  <h3>Bonus mensuels (selon le nombre de ventes validées dans le mois)</h3>
   <table>
     <thead><tr><th>Ventes dans le mois</th><th>Bonus</th><th>En plus</th></tr></thead>
     <tbody>
@@ -456,151 +281,10 @@ Kgroup Parfumery</div>
     </tbody>
   </table>
 
-  <div class="note">📅 <b>Le compteur repart à zéro chaque mois.</b> Le bonus dépend des ventes <b>du mois en cours</b> uniquement, comme le prévoit le contrat. La carte vous indique combien de ventes il vous reste pour atteindre le palier suivant.</div>
+  <div class="tip">🎁 <b>Page Récompenses :</b> retrouvez la liste des bonus de votre contrat, les codes promo et les parfums offerts. La progression vers le prochain palier s'affiche sur votre tableau de bord.</div>
 
-  <div class="tip">🔎 <b>Consulter un mois passé :</b> utilisez le sélecteur de mois en haut de la carte. Vos mois précédents restent consultables.</div>
-
-  <h3>« Estimée » ou définitive ?</h3>
-  <p>Tant que le mois n'est pas terminé et validé par l'administration, la carte indique <span class="state en">Rémunération estimée</span> — le montant peut encore monter avec vos prochaines ventes.</p>
-  <p>Une fois le mois clôturé, il affiche <span class="state fig">Montant figé</span> : il ne bougera plus.</p>
-
-  <div class="foot"><span>KGroup Parfumery — Guide d'utilisation</span><span>Page 6</span></div>
-</section>
-
-<!-- ============ PAGE 7 — Rémunération (admin) ============ -->
-<section class="page">
-  <div class="kicker">Pour les administrateurs</div>
-  <h2><span class="num">7.</span> Piloter la rémunération de l'équipe</h2>
-  <p class="lead">Le menu <strong>Rémunération</strong> donne la vue complète : qui a vendu quoi, combien chacun gagne, et la clôture des mois.</p>
-
-  <h3>La vue d'ensemble</h3>
-  <p>Quatre compteurs en haut : <strong>commerciaux</strong>, <strong>CA du mois</strong>, <strong>commissions</strong> et <strong>rémunération totale</strong>. En dessous, une ligne par commercial :</p>
-  <table>
-    <thead><tr><th>Colonne</th><th>Signification</th></tr></thead>
-    <tbody>
-      <tr><td>Ventes</td><td>Nombre de ventes du mois</td></tr>
-      <tr><td>CA</td><td>Chiffre d'affaires généré</td></tr>
-      <tr><td>Commission</td><td>Total dû au titre de l'Art. 3</td></tr>
-      <tr><td>Bonus</td><td>Palier atteint, et le palier suivant</td></tr>
-      <tr><td>Salaire fixe</td><td>Part fixe configurée</td></tr>
-      <tr><td>Total estimé</td><td>Ce que touche le commercial</td></tr>
-    </tbody>
-  </table>
-  <p>Un sélecteur de <strong>mois</strong> et une <strong>recherche</strong> par nom permettent de cibler. En bas, un graphique retrace l'<strong>évolution des 6 derniers mois</strong>.</p>
-
-  <h3>Configurer les règles</h3>
-  <p>Bouton <strong>⚙️ Paramètres</strong>. Vous pouvez régler :</p>
-  <ul>
-    <li>le <strong>salaire fixe mensuel</strong> (0 par défaut — le contrat KGroup n'en prévoit pas) ;</li>
-    <li>le <strong>mode de commission</strong> : par unité vendue (Art. 3, le réglage actuel) ou en pourcentage du CA ;</li>
-    <li>les <strong>paliers de bonus</strong> : seuil, montant et avantage associé. Vous pouvez en ajouter ou en retirer.</li>
-  </ul>
-
-  <div class="tip">⚙️ Ces réglages s'appliquent à <strong>toute l'équipe</strong> et prennent effet immédiatement sur les mois <strong>en cours</strong>.</div>
-
-  <h3>Clôturer un mois</h3>
-  <ol class="steps">
-    <li>Choisissez le mois concerné dans le sélecteur.</li>
-    <li>Cliquez sur <strong>Clôturer le mois</strong>.</li>
-    <li>Choisissez le statut à appliquer, puis confirmez.</li>
-  </ol>
-
-  <table>
-    <thead><tr><th>Statut</th><th>Signification</th></tr></thead>
-    <tbody>
-      <tr><td><span class="state en">EN COURS</span></td><td>Le mois n'est pas terminé — montants estimés, ils évoluent encore</td></tr>
-      <tr><td><span class="state fig">CLÔTURÉ</span></td><td>Les montants sont arrêtés</td></tr>
-      <tr><td><span class="state fig">VALIDÉE</span></td><td>Vérifiée par l'administration</td></tr>
-      <tr><td><span class="state fig">PAYÉE</span></td><td>Versée aux commerciaux</td></tr>
-    </tbody>
-  </table>
-
-  <div class="note">🔒 <b>Une paie clôturée ne bouge plus jamais.</b> Les montants <b>et les règles de calcul en vigueur ce mois-là</b> sont enregistrés ensemble. Si vous modifiez les paliers ou le salaire fixe plus tard, les mois déjà clôturés <b>ne sont pas réécrits</b>.</div>
-
-  <div class="tip">📆 Le <strong>mois en cours ne peut pas être clôturé</strong> tant qu'il n'est pas terminé — le bouton reste inactif.</div>
-
-  <div class="foot"><span>KGroup Parfumery — Guide d'utilisation</span><span>Page 7</span></div>
-</section>
-
-<!-- ============ PAGE 8 — Formation ============ -->
-<section class="page">
-  <div class="kicker">Montée en compétence</div>
-  <h2><span class="num">8.</span> La formation commerciale</h2>
-  <p class="lead">Le menu <strong>Formation</strong> reprend les deux journées de formation KGroup Parfumery, à suivre à son rythme et à valider par un quiz.</p>
-
-  <div class="two">
-    <div class="role-card">
-      <h4>🌿 Jour 1 — L'univers olfactif</h4>
-      <ul>
-        <li>La marque et ses valeurs</li>
-        <li>Les 5 familles olfactives</li>
-        <li>Notes de tête, de cœur, de fond</li>
-        <li>Parfums homme, femme, unisexe</li>
-        <li>Exercices pratiques</li>
-      </ul>
-    </div>
-    <div class="role-card">
-      <h4>💼 Jour 2 — La stratégie de vente</h4>
-      <ul>
-        <li>La posture du vendeur</li>
-        <li>Les erreurs des débutants</li>
-        <li>Le processus de vente en 5 étapes</li>
-        <li>La règle d'or : 2 à 3 parfums max</li>
-        <li>Objections et clôture</li>
-      </ul>
-    </div>
-  </div>
-
-  <h3>Comment ça marche</h3>
-  <ol class="steps">
-    <li>Dépliez une leçon, lisez-la, puis cliquez sur <strong>J'ai terminé cette leçon</strong>.</li>
-    <li>Quand <strong>toutes</strong> les leçons d'une journée sont lues, le <strong>quiz se débloque</strong>.</li>
-    <li>Répondez aux 10 questions. Il faut <strong>7 bonnes réponses sur 10</strong> pour valider.</li>
-    <li>À la remise, vous obtenez la <strong>correction détaillée</strong> avec l'explication de chaque réponse.</li>
-  </ol>
-
-  <div class="tip">🔁 <b>Le nombre d'essais est illimité.</b> En cas d'échec, relisez les leçons et retentez — seul votre meilleur score est retenu.</div>
-
-  <h3>Les badges de formation</h3>
-  <table>
-    <thead><tr><th>Badge</th><th>Comment l'obtenir</th></tr></thead>
-    <tbody>
-      <tr><td>👃 Expert Olfactif</td><td>Réussir le quiz du Jour 1</td></tr>
-      <tr><td>💼 Vendeur Confirmé</td><td>Réussir le quiz du Jour 2</td></tr>
-      <tr><td>🏅 Diplômé Kgroup</td><td>Valider les deux journées</td></tr>
-    </tbody>
-  </table>
-  <p>Ils s'ajoutent à vos badges de vente et apparaissent sur votre profil et dans les classements.</p>
-
-  <div class="card brandbar">
-    <strong>👑 Côté administrateur</strong>
-    <p style="margin-top:8px;margin-bottom:0">Sur la même page, vous suivez la progression de <strong>chaque membre</strong> : leçons lues, meilleur score par journée, et statut (non commencé / en cours / diplômé). Vous êtes <strong>notifié automatiquement</strong> dès qu'un commercial réussit un quiz ou termine toute la formation.</p>
-  </div>
-
-  <div class="foot"><span>KGroup Parfumery — Guide d'utilisation</span><span>Page 8</span></div>
-</section>
-
-<!-- ============ PAGE 9 — Classements, défis, rapports ============ -->
-<section class="page">
-  <div class="kicker">Pilotage &amp; animation</div>
-  <h2><span class="num">9.</span> Classements, Défis &amp; Rapports</h2>
-
-  <h3>🏆 Classements</h3>
-  <p>Le menu <strong>Classements</strong> affiche un podium animé et le classement complet de l'équipe, basé sur le chiffre d'affaires. Il se met à jour en direct à chaque vente.</p>
-
-  <h3>🎯 Défis</h3>
-  <p>Le menu <strong>Défis</strong> présente des challenges d'équipe avec objectif, récompense et compte à rebours.</p>
-  <div class="card brandbar">
-    <strong>Admin — créer un défi :</strong>
-    <ul>
-      <li>Titre du défi (ex. « 100 ventes ce mois-ci »)</li>
-      <li>Récompense associée</li>
-      <li>Objectif à atteindre + date de fin</li>
-    </ul>
-    Le défi apparaît alors chez tous les commerciaux, avec la progression en temps réel.
-  </div>
-
-  <h3>🎮 Niveaux &amp; badges de vente</h3>
+  <h3>La gamification (motivation de l'équipe)</h3>
+  <p>Chaque vendeur progresse à travers des niveaux et débloque des badges :</p>
   <p><strong>Niveaux :</strong> Rookie → Bronze → Silver → Gold → Platinum → Diamond</p>
   <table>
     <thead><tr><th>Badge</th><th>Comment l'obtenir</th></tr></thead>
@@ -614,75 +298,80 @@ Kgroup Parfumery</div>
     </tbody>
   </table>
 
+  <div class="foot"><span>KGroup Parfumery — Guide d'utilisation</span><span>Page 4</span></div>
+</section>
+
+<!-- ============ PAGE 5 — Classements, défis, rapports ============ -->
+<section class="page">
+  <div class="kicker">Pilotage & animation</div>
+  <h2><span class="num">5.</span> Classements, Défis & Rapports</h2>
+
+  <h3>🏆 Classements</h3>
+  <p>Le menu <strong>Classements</strong> affiche un podium animé et le classement complet de l'équipe, basé sur le chiffre d'affaires. Il se met à jour en direct à chaque vente. Idéal pour stimuler une saine compétition.</p>
+
+  <h3>🎯 Défis</h3>
+  <p>Le menu <strong>Défis</strong> présente des challenges d'équipe avec un objectif, une récompense et un compte à rebours.</p>
+  <div class="card brandbar">
+    <strong>Admin — créer un défi :</strong>
+    <ul>
+      <li>Titre du défi (ex. « 100 ventes ce mois-ci »)</li>
+      <li>Récompense associée</li>
+      <li>Objectif à atteindre + date de fin</li>
+    </ul>
+    Le défi apparaît alors chez tous les vendeurs, avec la progression en temps réel.
+  </div>
+
   <h3>📊 Rapports (admin)</h3>
+  <p>Le menu <strong>Rapports</strong> offre une analyse visuelle de la performance :</p>
   <div class="tag-row">
-    <span class="tag">Graphiques ventes &amp; revenus (12 mois)</span>
+    <span class="tag">Graphiques ventes & revenus (12 mois)</span>
     <span class="tag">Vue hebdomadaire</span>
-    <span class="tag">Top 10 commerciaux</span>
+    <span class="tag">Top 10 vendeurs</span>
     <span class="tag">Objectif mensuel</span>
-    <span class="tag">Export &amp; impression</span>
+    <span class="tag">Export & impression</span>
   </div>
   <p>Toutes les données proviennent des ventes réellement enregistrées — aucun chiffre fictif.</p>
 
   <h3>⚙️ Paramètres</h3>
-  <p>Chacun peut mettre à jour son profil (nom, ville, avatar) et <strong>changer son mot de passe</strong> (section Sécurité).</p>
+  <p>Dans <strong>Paramètres</strong>, chacun peut mettre à jour son profil (nom, ville, avatar) et <strong>changer son mot de passe</strong> (section Sécurité).</p>
 
-  <div class="foot"><span>KGroup Parfumery — Guide d'utilisation</span><span>Page 9</span></div>
+  <div class="foot"><span>KGroup Parfumery — Guide d'utilisation</span><span>Page 5</span></div>
 </section>
 
-<!-- ============ PAGE 10 — Aide rapide ============ -->
+<!-- ============ PAGE 6 — Aide rapide ============ -->
 <section class="page">
   <div class="kicker">Aide-mémoire</div>
-  <h2><span class="num">10.</span> Questions fréquentes &amp; astuces</h2>
+  <h2><span class="num">6.</span> Questions fréquentes & astuces</h2>
 
-  <h3>Le client existe déjà — que faire ?</h3>
-  <p>Rien de particulier : saisissez son <strong>numéro</strong> dans le formulaire de vente, ses informations se remplissent seules. La vente s'ajoute à sa fiche. <strong>Ne créez jamais un second client</strong> pour la même personne.</p>
-
-  <h3>Je n'ai pas la date d'anniversaire du client</h3>
-  <p>Ce n'est pas grave, le champ est <strong>facultatif</strong>. Vous pourrez l'ajouter plus tard depuis sa fiche, et il apparaîtra alors dans les rappels.</p>
-
-  <h3>Je ne vois pas les clients de mes collègues</h3>
-  <p>C'est normal : un <strong>commercial</strong> ne voit que les clients dont il est responsable. Pour un accès global, un administrateur doit vous attribuer le rôle <strong>Relation client</strong> (page Clients).</p>
-
-  <h3>Ma rémunération n'a pas bougé après une vente</h3>
-  <p>Rechargez la page : la carte se recalcule à chaque chargement. Vérifiez aussi que la vente est bien <strong>à votre nom</strong> et <strong>datée du mois en cours</strong>.</p>
-
-  <h3>Le bouton WhatsApp ne fait rien</h3>
+  <h3>Le lien de l'e-mail (confirmation / mot de passe) ne fonctionne pas</h3>
   <ul>
-    <li>Vérifiez que le client a bien un <strong>numéro enregistré</strong> (bouton grisé sinon).</li>
-    <li>Sur ordinateur, WhatsApp Web doit être <strong>connecté</strong>.</li>
-    <li>Autorisez l'ouverture des <strong>nouveaux onglets</strong> dans votre navigateur.</li>
-  </ul>
-
-  <h3>Je ne vois pas les mêmes menus qu'un collègue</h3>
-  <p>Chacun voit ce qui correspond à son rôle. <strong>Vendeurs</strong>, <strong>Rapports</strong> et <strong>Rémunération</strong> sont réservés aux administrateurs.</p>
-
-  <h3>Le lien reçu par e-mail ne fonctionne pas</h3>
-  <ul>
-    <li>Un lien de mot de passe expire au bout de <strong>60 minutes</strong> et ne sert <strong>qu'une fois</strong>. Redemandez-en un depuis la page de connexion.</li>
+    <li>Ouvrez le lien <strong>rapidement</strong> après réception — il expire (message <code>otp_expired</code>).</li>
+    <li>Si vous voyez « site inaccessible / localhost », <strong>redemandez un nouveau lien</strong> depuis le site en ligne <code>kgroupmanagement.netlify.app</code>.</li>
     <li>Vérifiez le dossier <strong>Spam / Courrier indésirable</strong>.</li>
   </ul>
 
+  <h3>Je ne vois pas les mêmes menus qu'un collègue</h3>
+  <p>C'est normal : les <strong>vendeurs</strong> n'ont pas accès aux pages réservées aux <strong>administrateurs</strong> (Vendeurs, Rapports). Chacun voit ce qui correspond à son rôle.</p>
+
+  <h3>Une vente s'est-elle bien enregistrée ?</h3>
+  <p>Après validation, elle apparaît dans la liste des ventes récentes et vos compteurs (XP, commissions, classement) bougent immédiatement. Sinon, réessayez.</p>
+
   <h3>Sur téléphone</h3>
-  <p>La plateforme est <strong>entièrement responsive</strong> : le menu se replie en un bouton ☰ en haut à gauche, et les tableaux défilent latéralement. Toutes les fonctions restent accessibles — y compris WhatsApp, qui ouvre directement l'application.</p>
+  <p>La plateforme est <strong>entièrement responsive</strong> : le menu se replie en un bouton ☰ en haut à gauche. Toutes les fonctions restent accessibles.</p>
 
   <div class="card brandbar">
     <strong>Récapitulatif des menus</strong>
     <table style="margin-top:8px">
       <thead><tr><th>Menu</th><th>À quoi ça sert</th><th>Qui</th></tr></thead>
       <tbody>
-        <tr><td>Tableau de bord</td><td>Vue d'ensemble, KPIs, ma rémunération</td><td>Tous</td></tr>
-        <tr><td>Ventes</td><td>Enregistrer une vente + son client</td><td>Admin · Commercial</td></tr>
-        <tr><td>Vendeurs</td><td>Gérer l'équipe &amp; inviter</td><td>Admin</td></tr>
-        <tr><td>Clients</td><td>Portefeuille, fiches, anniversaires, WhatsApp</td><td>Tous</td></tr>
-        <tr><td>Classements</td><td>Podium &amp; classement</td><td>Tous</td></tr>
-        <tr><td>Formation</td><td>Leçons, quiz &amp; badges</td><td>Tous</td></tr>
+        <tr><td>Tableau de bord</td><td>Vue d'ensemble & KPIs</td><td>Tous</td></tr>
+        <tr><td>Ventes</td><td>Enregistrer une vente</td><td>Tous</td></tr>
+        <tr><td>Vendeurs</td><td>Gérer l'équipe & inviter</td><td>Admin</td></tr>
+        <tr><td>Classements</td><td>Podium & classement</td><td>Tous</td></tr>
         <tr><td>Défis</td><td>Challenges d'équipe</td><td>Tous</td></tr>
-        <tr><td>Récompenses</td><td>Bonus &amp; codes promo</td><td>Tous</td></tr>
-        <tr><td>Rapports</td><td>Analyses &amp; exports</td><td>Admin</td></tr>
-        <tr><td>Rémunération</td><td>Commissions, bonus, clôture des mois</td><td>Admin</td></tr>
-        <tr><td>Notifications</td><td>Anniversaires, formation, activité</td><td>Tous</td></tr>
-        <tr><td>Paramètres</td><td>Profil &amp; mot de passe</td><td>Tous</td></tr>
+        <tr><td>Récompenses</td><td>Bonus & codes promo</td><td>Tous</td></tr>
+        <tr><td>Rapports</td><td>Analyses & exports</td><td>Admin</td></tr>
+        <tr><td>Paramètres</td><td>Profil & mot de passe</td><td>Tous</td></tr>
       </tbody>
     </table>
   </div>
@@ -692,8 +381,14 @@ Kgroup Parfumery</div>
     Contact : Bénédicte Kashala · 06 96 97 56 99
   </p>
 
-  <div class="foot"><span>KGroup Parfumery — Guide d'utilisation</span><span>Page 10</span></div>
+  <div class="foot"><span>KGroup Parfumery — Guide d'utilisation</span><span>Page 6</span></div>
 </section>
 
+<script>
+  // Petit confort : Ctrl/Cmd+P déclenche l'impression proprement.
+  document.addEventListener('keydown',function(e){
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='p'){/* laisse le navigateur gérer */}
+  });
+</script>
 </body>
 </html>

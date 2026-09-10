@@ -20,26 +20,6 @@
     <button class="btn btn-primary" data-modal-open="#addModal"><span data-ic="plus"></span> <span data-i18n="btn.addSalesperson">Add Salesperson</span></button>
   </div>
 
-  <!-- Edit modal -->
-  <div class="modal-overlay" id="editModal">
-    <div class="modal">
-      <div class="modal-head"><h3>Edit Salesperson</h3><button class="icon-btn" data-modal-close title="Close edit dialog"><span data-ic="x"></span></button></div>
-      <div class="modal-body">
-        <input type="hidden" id="editId">
-        <div class="form-grid">
-          <div class="field full"><label for="editName">Full name <span class="req">*</span></label><input class="input" id="editName" title="Full name" placeholder="Full name"></div>
-          <div class="field"><label for="editCity">City</label><input class="input" id="editCity" title="City" placeholder="City"></div>
-          <div class="field"><label for="editPhone">Phone</label><input class="input" id="editPhone" title="Phone" placeholder="Phone"></div>
-          <div class="field"><label for="editEmail">Email</label><input class="input" id="editEmail" type="email" title="Email" placeholder="Email"></div>
-          <div class="field"><label for="editLevel">Level</label><select class="select" id="editLevel" title="Salesperson level"><option>Rookie</option><option>Bronze</option><option>Silver</option><option>Gold</option><option>Platinum</option><option>Diamond</option></select></div>
-          <div class="field"><label for="editStatus">Status</label><select class="select" id="editStatus" title="Salesperson status"><option>Active</option><option>Inactive</option></select></div>
-          <div class="field full"><label for="editRole">Client portfolio access</label><select class="select" id="editRole" title="Client portfolio access"><option value="salesperson">Salesperson — own clients</option><option value="relation_client">Client relations — all clients</option></select><div class="hint">The salesperson must have activated their invite.</div></div>
-        </div>
-      </div>
-      <div class="modal-foot"><button class="btn btn-ghost" data-modal-close>Cancel</button><button class="btn btn-primary" id="saveEdit">Save changes</button></div>
-    </div>
-  </div>
-
   <!-- Toolbar: search + filters -->
   <div class="table-tools reveal">
     <div class="search-box" style="min-width:260px;display:flex">
@@ -65,7 +45,6 @@
             <th class="sortable" data-key="sales">Sales <span class="sort-ico" data-ic="sort"></span></th>
             <th class="sortable" data-key="revenue">Revenue <span class="sort-ico" data-ic="sort"></span></th>
             <th>Status</th>
-            <th>Access</th>
             <th class="sortable" data-key="rank">Rank <span class="sort-ico" data-ic="sort"></span></th>
             <th style="text-align:right">Actions</th>
           </tr>
@@ -177,9 +156,6 @@
           <td><b>${s.sales}</b></td>
           <td><b>${KG.fmt.moneyShort(s.revenue)}</b></td>
           <td>${s.invite_code ? '<span class="badge gold">⏳ Invite pending</span>' : statusBadge(s.status)}</td>
-          <td>${s.role === "relation_client"
-            ? '<span class="badge green">Client relations</span>'
-            : '<span class="badge gray">Salesperson</span>'}</td>
           <td>${rankTag(s.rank)}</td>
           <td><div class="row-actions" style="justify-content:flex-end">
             ${s.invite_code ? `<button class="icon-btn" data-invite="${s.id}" title="Copy invite link" style="color:var(--brand);border-color:var(--brand-300)">${icon("link")}</button>` : ""}
@@ -236,19 +212,8 @@
             </div>`;
           window.kgModal.open("#viewModal");
         }));
-        document.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () => {
-          const s = KG.salespersons.find(x => x.id === b.dataset.edit);
-          if (!s) return;
-          document.getElementById("editId").value = s.id;
-          document.getElementById("editName").value = s.name || "";
-          document.getElementById("editCity").value = s.city || "";
-          document.getElementById("editPhone").value = s.phone || "";
-          document.getElementById("editEmail").value = s.email || "";
-          document.getElementById("editLevel").value = s.level || "Rookie";
-          document.getElementById("editStatus").value = s.status || "Active";
-          document.getElementById("editRole").value = s.role || "salesperson";
-          window.kgModal.open("#editModal");
-        }));
+        document.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () =>
+          toast("info","Edit salesperson","Editing is available when a backend is connected.")));
         document.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => {
           const s = KG.salespersons.find(x => x.id === b.dataset.del);
           if (s) askDelete(s);
@@ -275,7 +240,7 @@
       });
       function closeInvite() {
         window.kgModal.close(document.getElementById("inviteModal"));
-        if (inviteReload && window.KG_API_CONFIGURED) location.reload(); // refresh roster only after adding
+        if (inviteReload && !window.KGAuth.isDemo()) location.reload(); // refresh roster only after adding
       }
       document.getElementById("inviteDone").addEventListener("click", closeInvite);
       document.getElementById("inviteX").addEventListener("click", closeInvite);
@@ -298,39 +263,13 @@
         e.target.disabled = false;
         window.kgModal.close(document.getElementById("deleteModal"));
         toast("success", "Removed", `${s.name} has been removed from your team.`);
-        if (window.KG_API_CONFIGURED) {
+        if (!window.KGAuth.isDemo()) {
           setTimeout(() => location.reload(), 700); // refresh roster from the DB
         } else {
           const tr = document.querySelector(`tr[data-id="${s.id}"]`);
           if (tr) { tr.style.transition = "opacity .3s"; tr.style.opacity = "0"; setTimeout(() => tr.remove(), 320); }
         }
         pendingDel = null;
-      });
-
-      document.getElementById("saveEdit").addEventListener("click", async (e) => {
-        const id = document.getElementById("editId").value;
-        const name = document.getElementById("editName").value.trim();
-        if (!name) { toast("error", "Missing name", "Please enter the salesperson's full name."); return; }
-        const fields = {
-          name,
-          city: document.getElementById("editCity").value.trim() || null,
-          phone: document.getElementById("editPhone").value.trim() || null,
-          email: document.getElementById("editEmail").value.trim() || null,
-          level: document.getElementById("editLevel").value,
-          status: document.getElementById("editStatus").value,
-          role: document.getElementById("editRole").value,
-        };
-        try {
-          e.target.disabled = true;
-          await window.KGDB.updateSalesperson(id, fields);
-          window.kgModal.close(document.getElementById("editModal"));
-          toast("success", "Salesperson updated", "The team profile has been saved.");
-          if (window.KG_API_CONFIGURED) setTimeout(() => location.reload(), 500);
-        } catch (err) {
-          toast("error", "Could not save", err.message || "Please try again.");
-        } finally {
-          e.target.disabled = false;
-        }
       });
 
       document.getElementById("saveRep").addEventListener("click", async (e) => {
@@ -358,7 +297,7 @@
         // Reveal the shareable invite link so the rep can create their own login
         const code = res && res.invite_code;
         if (code) showInvite(name, code, true);
-        else if (window.KG_API_CONFIGURED) setTimeout(() => location.reload(), 900);
+        else if (!window.KGAuth.isDemo()) setTimeout(() => location.reload(), 900);
       });
     };
   </script>

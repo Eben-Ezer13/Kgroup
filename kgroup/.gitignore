@@ -1,21 +1,7 @@
-# Secrets — never commit these
+node_modules/
+.netlify/
 .env
 .env.*
 !.env.example
-
-# Dependencies
-node_modules/
-
-# Build / deploy artefacts
-.netlify/
-dist/
-
-# Logs & OS noise
+env.txt
 *.log
-npm-debug.log*
-.DS_Store
-Thumbs.db
-
-# Editors
-.vscode/
-.idea/

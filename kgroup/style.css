@@ -359,12 +359,7 @@ ul { list-style: none; }
 .page-head p { color: var(--muted); margin-top: 4px; font-size: 14.5px; }
 
 /* Hamburger (mobile) */
-/* Deux boutons distincts pour deux usages, jamais visibles en meme temps :
-   - .hamburger    ouvre la nav hors-ecran, uniquement sous 860px
-   - .collapse-btn replie la barre laterale, uniquement au-dessus de 860px
-   (sous 860px la barre est hors-ecran : la replier n'aurait aucun sens) */
 .hamburger { display: none; }
-.collapse-btn { display: inline-flex; }
 
 /* -------------------------------------------------------------------------
    5. STAT CARDS & WIDGETS
@@ -763,7 +758,6 @@ table.data tbody tr:last-child td { border-bottom: none; }
   .app-shell.nav-open .sidebar { transform: translateX(0); }
   .main { margin-left: 0 !important; }
   .hamburger { display: inline-flex; }
-  .collapse-btn { display: none; }
   .app-shell.collapsed .sidebar { width: var(--sidebar-w); }
   .nav-scrim { position: fixed; inset: 0; background: rgba(8,20,15,.4); z-index: 55; opacity: 0; visibility: hidden; transition: opacity .3s; }
   .app-shell.nav-open .nav-scrim { opacity: 1; visibility: visible; }

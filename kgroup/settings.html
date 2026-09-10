@@ -72,7 +72,7 @@
           <button class="btn btn-danger" id="signOut"><span data-ic="logout"></span> Sign out</button>
         </div>
         <div id="demoNote" class="demo-hint hidden" style="margin-top:16px">
-          ⚙️ Demo mode — start the API with a Neon DATABASE_URL (see MIGRATION-NEON.md) to save changes for real.
+          ⚙️ Demo mode — use real-account mode to save changes through the secure API.
         </div>
       </div>
     </div>
@@ -99,9 +99,7 @@
       $("settingsAvatar").innerHTML = avatar(me, 72);
       $("pName").textContent  = me.name || "—";
       $("pEmail").textContent = me.email || "—";
-      $("pRole").textContent  = window.KG_ROLE === "relation_client"
-        ? "Relation client / Commercial"
-        : window.KG_ROLE === "salesperson" ? "Salesperson" : "Administrator";
+      $("pRole").textContent  = (window.KG_ROLE === "salesperson") ? "Salesperson" : "Administrator";
       $("fName").value = me.name || "";
       $("fCity").value = me.city && me.city !== "—" ? me.city : "";
 
@@ -114,7 +112,7 @@
         } catch (err) { e.target.disabled = false; toast("error", "Could not save", err.message || "Try again."); return; }
         e.target.disabled = false;
         $("pName").textContent = full_name;
-        toast("success", "Profile saved", window.KG_API_CONFIGURED ? "Your changes are stored." : "Saved (demo).");
+        toast("success", "Profile saved", window.KGAuth.isDemo() ? "Saved (demo)." : "Your changes are stored.");
       });
 
       // ---- Appearance: theme ----
@@ -137,7 +135,7 @@
       syncLang();
 
       // ---- Security ----
-      if (!window.KG_API_CONFIGURED) $("demoNote").classList.remove("hidden");
+      if (window.KGAuth.isDemo()) $("demoNote").classList.remove("hidden");
       $("changePass").addEventListener("click", async (e) => {
         const p1 = $("pass1").value, p2 = $("pass2").value;
         if (p1.length < 6) { toast("error", "Too short", "Password must be at least 6 characters."); return; }
@@ -146,7 +144,7 @@
           if (window.KGAuth) { e.target.disabled = true; await window.KGAuth.updatePassword(p1); }
         } catch (err) { e.target.disabled = false; toast("error", "Could not update", err.message || "Try again."); return; }
         e.target.disabled = false; $("pass1").value = ""; $("pass2").value = "";
-        toast("success", "Password updated", window.KG_API_CONFIGURED ? "Use it next time you sign in." : "Saved (demo).");
+        toast("success", "Password updated", window.KGAuth.isDemo() ? "Saved (demo)." : "Use it next time you sign in.");
       });
       $("signOut").addEventListener("click", async () => {
         if (window.KGAuth) { try { await window.KGAuth.signOut(); } catch (_) {} }

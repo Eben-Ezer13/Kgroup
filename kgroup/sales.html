@@ -22,24 +22,9 @@
     <div class="card card-pad reveal">
       <form id="saleForm" novalidate>
         <div class="form-grid">
-          <!-- ---- CLIENT ---- -->
-          <div class="field full" style="margin-bottom:-4px">
-            <div class="row" style="justify-content:space-between;align-items:center">
-              <label style="margin:0">Client</label>
-              <span id="clientHint" class="muted" style="font-size:12px"></span>
-            </div>
-          </div>
           <div class="field">
-            <label>Téléphone</label>
-            <input class="input" id="clientPhone" type="tel" placeholder="06 12 34 56 78" autocomplete="off">
-          </div>
-          <div class="field">
-            <label>Nom du client <span class="req">*</span></label>
-            <input class="input" id="customer" placeholder="Nom du client" required>
-          </div>
-          <div class="field">
-            <label>Date d'anniversaire</label>
-            <input class="input" id="clientBirthday" type="date">
+            <label>Customer <span class="req">*</span></label>
+            <input class="input" id="customer" placeholder="Customer name" required>
           </div>
           <div class="field">
             <label>Salesperson</label>
@@ -155,7 +140,7 @@
       $("#rep").innerHTML = KG.salespersons.map(s=>`<option value="${s.id}">${s.name} — ${s.city}</option>`).join("");
 
       // Salespersons can only register their OWN sales → lock the rep field to themselves
-      if (["salesperson", "relation_client"].includes(window.KG_ROLE) && KG.me) {
+      if (window.KG_ROLE === "salesperson" && KG.me) {
         if (![...$("#rep").options].some(o => o.value === KG.me.id))
           $("#rep").insertAdjacentHTML("afterbegin", `<option value="${KG.me.id}">${KG.me.name}</option>`);
         $("#rep").value = KG.me.id;
@@ -192,37 +177,7 @@
       document.querySelectorAll('input[name="pay"]').forEach(r => r.addEventListener("change", update));
       update();
 
-      /* ---- Reconnaissance du client par son numero -------------------
-         Des que le numero saisi est exploitable, on interroge l API. Si le
-         client existe deja, on prerempli nom et anniversaire : le commercial
-         n a jamais a resaisir un client connu, et aucun doublon n est cree. */
-      let matchedClientId = null;
-      const hint = $("#clientHint");
-      function setHint(text, ok) {
-        hint.textContent = text || "";
-        hint.style.color = ok ? "var(--brand)" : "var(--muted)";
-      }
-
-      let lookupTimer;
-      $("#clientPhone").addEventListener("input", () => {
-        clearTimeout(lookupTimer);
-        matchedClientId = null;
-        setHint("");
-        const raw = $("#clientPhone").value.trim();
-        if (raw.replace(/\D/g, "").length < 6) return;
-        // Anti-rafale : on n interroge qu apres une pause de frappe.
-        lookupTimer = setTimeout(async () => {
-          if (!window.KGClients) return;
-          const c = await window.KGClients.lookupByPhone(raw);
-          if (!c) { setHint("Nouveau client — il sera cree avec cette vente."); return; }
-          matchedClientId = c.id;
-          $("#customer").value = c.name || "";
-          if (c.birthday) $("#clientBirthday").value = String(c.birthday).slice(0, 10);
-          setHint(`Client connu : ${c.name} — ${c.sales_count || 0} vente(s)`, true);
-        }, 350);
-      });
-
-      // Submit → persist through the API when reachable, else demo
+      // Submit → persist through the API in real mode, else keep the demo flow.
       $("#saleForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         if (!$("#customer").value.trim()) { toast("error","Missing customer","Please enter a customer name."); $("#customer").focus(); return; }
@@ -238,11 +193,6 @@
           rep_id: $("#rep").value || null,
           rep_name: $("#rep").selectedOptions[0].textContent.replace(/\s*—.*/,""),
           remarks: $("#remarks").value.trim() || null,
-          // Le serveur retrouve le client par son numero, ou le cree. Il ne
-          // duplique jamais un client existant (numero unique par equipe).
-          client_id: matchedClientId || null,
-          client_phone: $("#clientPhone").value.trim() || null,
-          client_birthday: $("#clientBirthday").value || null,
         };
         // Real timestamp: today's sale uses the exact current time; a back-dated
         // one keeps the chosen day. The DB would default to now() too, but we set
@@ -267,8 +217,7 @@
         $("#successMsg").innerHTML = `<b>${$("#sumProduct").textContent}</b> ×${$("#sumQty").textContent} — <b style="color:var(--brand)">${$("#sumTotal").textContent}</b>`;
         window.kgModal.open("#successModal");
         toast("success","Sale registered","Rankings & XP updated.");
-        e.target.reset(); $("#date").value = today(); $("#ref").value = newRef();
-        matchedClientId = null; setHint(""); update();
+        e.target.reset(); $("#date").value = today(); $("#ref").value = newRef(); update();
       });
     };
   </script>

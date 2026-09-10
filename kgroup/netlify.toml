@@ -1,64 +1,21 @@
-# =========================================================================
-# KGROUP — Configuration Netlify
-#
-# `npm run build` valide le projet puis assemble dist/ avec UNIQUEMENT ce
-# qu'un navigateur telecharge. Le code serveur n'est donc jamais publie sur
-# le CDN : il n'existe qu'a l'interieur de la fonction /api, bundlee depuis
-# netlify/functions/api.js par le graphe de dependances.
-#
-# Variables a definir dans Netlify -> Project configuration -> Environment variables :
-#   REQUIS      DATABASE_URL   chaine de connexion Neon (pooled)
-#               JWT_SECRET     >= 32 caracteres
-#   RECOMMANDE  APP_URL        https://votre-site.netlify.app/
-#               CRON_SECRET    active les rappels d'anniversaire
-#   OPTIONNEL   RESEND_API_KEY, MAIL_FROM        e-mails de reinitialisation
-#               GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET   connexion Google
-# =========================================================================
-
 [build]
-  publish = "dist"
+  publish = "."
   functions = "netlify/functions"
-  command = "npm run build"
 
 [functions]
   node_bundler = "esbuild"
 
-# Rappels d'anniversaire : balayage horaire. La table birthday_reminders rend
-# l'operation idempotente, donc une execution supplementaire est sans effet.
-[functions."birthday-cron"]
-  schedule = "@hourly"
-
-# ---- API ----------------------------------------------------------------
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/api/api/:splat"
+  to = "/.netlify/functions/api/:splat"
   status = 200
-  force = true
 
-# ---- Page d'erreur ------------------------------------------------------
-# Toute URL inconnue tombe sur la page 404 du site.
-[[redirects]]
-  from = "/*"
-  to = "/404.html"
-  status = 404
-
-# ---- En-tetes de securite -----------------------------------------------
 [[headers]]
-  for = "/*"
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/*.js"
   [headers.values]
     X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    X-Frame-Options = "SAMEORIGIN"
-    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
-
-# Les pages ne doivent pas etre servies depuis un cache perime apres un
-# deploiement ; les ressources versionnees par leur contenu peuvent l'etre.
-[[headers]]
-  for = "/*.html"
-  [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
-
-[[headers]]
-  for = "/assets/*"
-  [headers.values]
-    Cache-Control = "public, max-age=604800"

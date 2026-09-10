@@ -27,9 +27,6 @@
     logout:    '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
     search:    '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
     menu:      '<path d="M3 12h18M3 6h18M3 18h18"/>',
-    // Repli de la barre laterale : glyphe « panneau lateral », volontairement
-    // different du hamburger pour que les deux boutons ne se confondent pas.
-    panel:     '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/>',
     sun:       '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>',
     moon:      '<path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/>',
     plus:      '<path d="M12 5v14M5 12h14"/>',
@@ -60,8 +57,6 @@
     medal:     '<circle cx="12" cy="15" r="6"/><path d="M9 9 5 2M15 9l4-7M12 12l1 2 2 .3-1.5 1.4.4 2-1.9-1-1.9 1 .4-2L9 14.3l2-.3z"/>',
     link:      '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
     help:      '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
-    book:      '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h5"/>',
-    heart:     '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21.2l7.7-7.8 1.1-1a5.5 5.5 0 0 0 0-7.8z"/>',
     google:    '<path d="M22 12c0-.6-.05-1.2-.15-1.8H12v3.6h5.6a4.8 4.8 0 0 1-2.08 3.15v2.6h3.36C20.85 17.9 22 15.25 22 12z" fill="#4285F4" stroke="none"/><path d="M12 22c2.7 0 4.96-.9 6.62-2.42l-3.36-2.6c-.93.62-2.12.98-3.26.98-2.5 0-4.62-1.69-5.38-3.96H3.16v2.68A10 10 0 0 0 12 22z" fill="#34A853" stroke="none"/><path d="M6.62 13.99a6 6 0 0 1 0-3.83V7.48H3.16a10 10 0 0 0 0 9.04z" fill="#FBBC05" stroke="none"/><path d="M12 5.4c1.47 0 2.79.51 3.82 1.5l2.85-2.85C16.95 2.42 14.7 1.5 12 1.5A10 10 0 0 0 3.16 7.48l3.46 2.68C7.38 7.9 9.5 5.4 12 5.4z" fill="#EA4335" stroke="none"/>',
   };
   function icon(name, cls) {
@@ -91,9 +86,8 @@
       "nav.dashboard":"Dashboard","nav.sales":"Sales","nav.salespersons":"Salespersons",
       "nav.ranking":"Rankings","nav.challenges":"Challenges","nav.rewards":"Rewards",
       "nav.reports":"Reports","nav.notifications":"Notifications","nav.settings":"Settings","nav.logout":"Logout",
-      "nav.formation":"Training","nav.clients":"Clients","nav.remuneration":"Payroll",
       "group.main":"Main","group.insights":"Insights","group.system":"System",
-      "topbar.search":"Search anything…","lang.title":"Language","topbar.collapse":"Collapse sidebar",
+      "topbar.search":"Search anything…","lang.title":"Language",
       "greeting.morning":"Good morning","common.viewAll":"View all",
       "btn.newSale":"New Sale","btn.export":"Export","btn.addSalesperson":"Add Salesperson",
       "btn.registerSale":"Register Sale","btn.createChallenge":"Create Challenge",
@@ -114,9 +108,8 @@
       "nav.dashboard":"Tableau de bord","nav.sales":"Ventes","nav.salespersons":"Vendeurs",
       "nav.ranking":"Classements","nav.challenges":"Défis","nav.rewards":"Récompenses",
       "nav.reports":"Rapports","nav.notifications":"Notifications","nav.settings":"Paramètres","nav.logout":"Déconnexion",
-      "nav.formation":"Formation","nav.clients":"Clients","nav.remuneration":"Rémunération",
       "group.main":"Principal","group.insights":"Analyses","group.system":"Système",
-      "topbar.search":"Rechercher…","lang.title":"Langue","topbar.collapse":"Replier le menu",
+      "topbar.search":"Rechercher…","lang.title":"Langue",
       "greeting.morning":"Bonjour","common.viewAll":"Voir tout",
       "btn.newSale":"Nouvelle vente","btn.export":"Exporter","btn.addSalesperson":"Ajouter un vendeur",
       "btn.registerSale":"Enregistrer la vente","btn.createChallenge":"Créer un défi",
@@ -213,7 +206,7 @@
 
   function initTutorial() {
     if (document.getElementById("tutorialModal")) return;   // build once
-    const role = ["salesperson", "relation_client"].includes(window.KG_ROLE) ? "salesperson" : "admin";
+    const role = window.KG_ROLE === "salesperson" ? "salesperson" : "admin";
     const steps = TUTORIAL[role];
     let idx = 0;
 
@@ -313,17 +306,15 @@
   // Each item declares which roles may see it + its sidebar group.
   // 'dashboard' and 'notifications' hrefs are resolved per-role at render time.
   const NAV = [
-    { key: "dashboard",    label: "Dashboard",    icon: "grid",   group: "Main",     roles: ["admin","salesperson","relation_client"] },
-    { key: "sales",        label: "Sales",        icon: "bag",    group: "Main",     roles: ["admin","salesperson","relation_client"], href: "sales.html" },
+    { key: "dashboard",    label: "Dashboard",    icon: "grid",   group: "Main",     roles: ["admin","salesperson"] },
+    { key: "sales",        label: "Sales",        icon: "bag",    group: "Main",     roles: ["admin","salesperson"], href: "sales.html" },
     { key: "salespersons", label: "Salespersons", icon: "users",  group: "Main",     roles: ["admin"],               href: "salespersons.html" },
-    { key: "ranking",      label: "Rankings",     icon: "trophy", group: "Main",     roles: ["admin","salesperson","relation_client"], href: "ranking.html" },
-    { key: "challenges",   label: "Challenges",   icon: "flag",   group: "Main",     roles: ["admin","salesperson","relation_client"], href: "challenges.html" },
-    { key: "clients",      label: "Clients",      icon: "heart",  group: "Main",     roles: ["admin","salesperson","relation_client"], href: "clients.html" },
-    { key: "formation",    label: "Training",     icon: "book",   group: "Main",     roles: ["admin","salesperson","relation_client"], href: "formation.html" },
-    { key: "remuneration", label: "Payroll",      icon: "dollar", group: "Insights", roles: ["admin"],               href: "remuneration.html" },
-    { key: "rewards",      label: "Rewards",      icon: "gift",   group: "Insights", roles: ["admin","salesperson","relation_client"], href: "challenges.html#rewards" },
+    { key: "ranking",      label: "Rankings",     icon: "trophy", group: "Main",     roles: ["admin","salesperson"], href: "ranking.html" },
+    { key: "challenges",   label: "Challenges",   icon: "flag",   group: "Main",     roles: ["admin","salesperson"], href: "challenges.html" },
+    { key: "rewards",      label: "Rewards",      icon: "gift",   group: "Insights", roles: ["admin","salesperson"], href: "challenges.html#rewards" },
     { key: "reports",      label: "Reports",      icon: "file",   group: "Insights", roles: ["admin"],               href: "reports.html" },
-    { key: "settings",     label: "Settings",     icon: "gear",   group: "System",   roles: ["admin","salesperson","relation_client"], href: "settings.html" },
+    { key: "notifications",label: "Notifications",icon: "bell",   group: "Insights", roles: ["admin","salesperson"] },
+    { key: "settings",     label: "Settings",     icon: "gear",   group: "System",   roles: ["admin","salesperson"], href: "settings.html" },
   ];
 
   /* -----------------------------------------------------------------------
@@ -338,7 +329,7 @@
     const me = KG.me || { name: "Admin", initials: "AD" };
     const appRole = window.KG_ROLE || "admin";                 // 'admin' | 'salesperson'
     const role = body.dataset.role || (appRole === "salesperson" ? "Salesperson" : "Administrator");
-    const home = ["salesperson", "relation_client"].includes(appRole) ? "salesperson.html" : "dashboard.html";
+    const home = appRole === "salesperson" ? "salesperson.html" : "dashboard.html";
 
     // Resolve role-specific hrefs, then keep only items this role may see
     const visibleNav = NAV
@@ -394,7 +385,7 @@
       <div class="main">
         <header class="topbar">
           <button class="icon-btn hamburger" id="hamburger" aria-label="Menu">${icon("menu")}</button>
-          <button class="icon-btn collapse-btn" id="collapseBtn" title="${t("topbar.collapse")}" aria-label="${t("topbar.collapse")}">${icon("panel")}</button>
+          <button class="icon-btn" id="collapseBtn" title="Collapse sidebar">${icon("menu")}</button>
           <div>
             <h1>${title}</h1>
             <div class="crumb">KGROUP • ${title}</div>
@@ -412,6 +403,17 @@
           </div>
           <button class="icon-btn" id="helpBtn" title="${tutL("help")}">${icon("help")}</button>
           <button class="icon-btn" id="themeBtn" title="Toggle theme"><span data-theme-ico>${icon("moon")}</span></button>
+          <div class="dropdown" id="notifDropdown">
+            <button class="icon-btn" id="notifBtn" title="Notifications">${icon("bell")}${badgeFor("notifications") ? '<span class="ping"></span>' : ""}</button>
+            <div class="dropdown-panel">
+              <div class="dropdown-head">
+                <strong>Notifications</strong>
+                <a href="#" class="link" id="markAll">Mark all read</a>
+              </div>
+              <div class="dropdown-list" id="notifList"></div>
+              <div class="dropdown-foot"><a href="#" class="link">View all activity</a></div>
+            </div>
+          </div>
           ${avatar(me, 42)}
         </header>
         <div class="content" id="content"></div>
@@ -459,14 +461,6 @@
   function buildNotifications() {
     const K = window.KG; if (!K) return [];
     const notifs = [];
-    // Formation en tete : une reussite est plus notable qu une vente de routine.
-    (K.teamNotifications || []).slice(0, 5).forEach(n => notifs.push({
-      id: "t:" + n.id,
-      type: n.type === "training_completed" ? "gold" : "info",
-      icon: "medal",
-      title: n.title,
-      time: relTime(Date.parse(n.created_at)),
-    }));
     (K.recentSales || []).slice(0, 8).forEach(s => notifs.push({
       id: "s:" + s.id, type: "info", icon: "bag",
       title: `New sale — ${s.product}${s.qty > 1 ? " ×" + s.qty : ""}`,
@@ -562,7 +556,7 @@
     $("#langBtn")?.addEventListener("click", (e) => { e.stopPropagation(); langDd.classList.toggle("open"); });
     document.addEventListener("click", (e) => { if (langDd && !langDd.contains(e.target)) langDd.classList.remove("open"); });
 
-    // Real logout → end the API session, then go to login
+    // End the API session, then go to login.
     $('[data-nav="logout"]')?.addEventListener("click", async (e) => {
       e.preventDefault();
       if (window.KGAuth) { try { await window.KGAuth.signOut(); } catch (_) {} }
@@ -571,14 +565,6 @@
 
     // Notifications dropdown — opening it marks everything as seen
     const dd = $("#notifDropdown");
-    async function refreshNotifications() {
-      if (!window.KGTraining || !window.KG_API_CONFIGURED) return;
-      const latest = await window.KGTraining.notifications(20);
-      if (!latest) return;
-      window.KG.teamNotifications = latest;
-      buildNotifications();
-      renderNotifs();
-    }
     function markNotifsSeen() {
       const top = (window.KG.notifications || [])[0];
       if (top) localStorage.setItem("kg-seen-notif-id", top.id);
@@ -587,9 +573,8 @@
       $(".ping")?.remove();
       document.querySelector('[data-nav="notifications"] .nav-badge')?.remove();
     }
-    $("#notifBtn")?.addEventListener("click", async (e) => {
+    $("#notifBtn")?.addEventListener("click", (e) => {
       e.stopPropagation();
-      await refreshNotifications();
       dd.classList.toggle("open");
       if (dd.classList.contains("open")) markNotifsSeen();
     });
@@ -601,14 +586,7 @@
     });
 
     // Visiting a section via its nav item clears that section's badge
-    $('[data-nav="notifications"]')?.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (!dd) return;
-      refreshNotifications();
-      dd.classList.add("open");
-      markNotifsSeen();
-    });
-    if (window.KG_API_CONFIGURED) setInterval(refreshNotifications, 60_000);
+    $('[data-nav="notifications"]')?.addEventListener("click", markNotifsSeen);
     $('[data-nav="challenges"]')?.addEventListener("click", () =>
       setSeen("chal", (window.KG.challenges || []).length));
 
@@ -981,7 +959,7 @@
      13. BOOT
   ----------------------------------------------------------------------- */
   document.addEventListener("DOMContentLoaded", async () => {
-    // --- Auth guard: protected pages require a session (when the API is live) ---
+    // --- Auth guard: protected pages require a session outside demo mode ---
     if (document.body.hasAttribute("data-app") && window.KGAuth) {
       const ok = await window.KGAuth.requireSession("login.html");
       if (!ok) return; // redirected to login
@@ -989,22 +967,14 @@
       // --- Role guard: keep salespersons out of admin-only pages & vice versa ---
       const role = await window.KGAuth.role();
       window.KG_ROLE = role;
-      if (role === "relation_client") {
-        const allowedPage = ["clients", "settings", "formation", "challenges", "ranking", "dashboard", "sales"].includes(document.body.dataset.page);
-        if (document.body.hasAttribute("data-admin-only") || !allowedPage) {
-          window.location.replace("clients.html"); return;
-        }
-      }
       if (document.body.hasAttribute("data-admin-only") && role !== "admin") {
         window.location.replace("salesperson.html"); return;
       }
-      if (document.body.hasAttribute("data-salesperson-only") && !["salesperson", "relation_client"].includes(role)) {
+      if (document.body.hasAttribute("data-salesperson-only") && role !== "salesperson") {
         window.location.replace("dashboard.html"); return;
       }
-      // Un charge de relation client n'a pas de tableau de bord commercial :
-      // sa page d'accueil naturelle est le portefeuille client.
     }
-    // --- Hydrate window.KG with live DB rows when the API is reachable ---
+    // --- Hydrate window.KG with live API rows outside demo mode ---
     if (window.KGData) { try { await window.KGData.hydrate(); } catch (e) { console.warn(e); } }
 
     // Derive notifications from real activity; mark the current section as seen

@@ -9,7 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/jpeg" href="assets/images/logo.jpeg" />
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="crm.css" />
 </head>
 <body data-app data-salesperson-only data-page="dashboard" data-title="My Dashboard" data-role="Salesperson">
 
@@ -71,21 +70,12 @@
 
   <!-- ===== EARNINGS + MONTHLY BONUS (contract Art. 3 & 4) ===== -->
   <div class="grid grid-2" style="margin-bottom:24px">
-    <!-- Ma remuneration du mois : salaire fixe + commissions + bonus -->
-    <div class="card card-pad reveal">
-      <div class="section-title" style="align-items:center">
-        <div><h3>Ma rémunération 💰</h3><div class="sub" id="payPeriod">Mois en cours</div></div>
-        <input class="input" id="payMonth" type="month" style="width:auto;max-width:160px">
-      </div>
-      <div id="payBox"></div>
-    </div>
-
     <div class="card card-pad reveal">
       <div class="section-title"><div><h3>My Commission 💸</h3><div class="sub">Earned this month — Art. 3</div></div></div>
       <div id="commissionBox"></div>
     </div>
     <div class="card card-pad reveal">
-      <div class="section-title"><div><h3>Bonus ladder 🎁</h3><div class="sub">Progression cumulée — le bonus dû est ci-dessus</div></div></div>
+      <div class="section-title"><div><h3>Monthly Bonus 🎁</h3><div class="sub">Validated sales — Art. 4</div></div></div>
       <div id="bonusBox"></div>
     </div>
   </div>
@@ -149,8 +139,8 @@
       function drawPerf(){
         const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
         let vals;
-        if (Array.isArray(me.weekSeries)) vals = me.weekSeries;                       // real per-user units (from the DB)
-        else if (!window.KG_API_CONFIGURED) vals = days.map((_,i)=> 4 + Math.round(Math.abs(Math.sin(i+(me.rank||1)))*8)); // demo preview only
+        if (Array.isArray(me.weekSeries)) vals = me.weekSeries;                       // real per-user units from the API
+        else if (window.KGAuth.isDemo()) vals = days.map((_,i)=> 4 + Math.round(Math.abs(Math.sin(i+(me.rank||1)))*8)); // demo preview only
         else vals = [0,0,0,0,0,0,0];                                                  // real account with no sales yet → empty state
         KGCharts.barChart(document.getElementById("perfChart"), { values: vals, labels: days, height: 240 });
       }
@@ -164,69 +154,8 @@
           Rates — 30 ml → 5 DHS · 50 ml → 8 DHS · 100 ml → 15 DHS
         </div>`;
 
-      /* ---- Ma remuneration du mois -------------------------------------
-         Le calcul vient du SERVEUR (/api/payroll) : c est la meme formule que
-         celle utilisee par la vue administrateur et par la cloture de mois, ce
-         qui garantit qu un commercial et son administrateur voient le meme
-         montant. Le detail est recalcule a chaque chargement, donc il reflete
-         la derniere vente enregistree. */
-      const nowMonth = new Date().toISOString().slice(0, 7);
-      const payMonth = document.getElementById("payMonth");
-      payMonth.value = nowMonth; payMonth.max = nowMonth;
-
-      async function loadPay() {
-        const box = document.getElementById("payBox");
-        if (!window.KGPayroll) { box.innerHTML = ""; return; }
-        const data = await window.KGPayroll.mine(payMonth.value || nowMonth);
-
-        if (!data || !data.line) {
-          box.innerHTML = `<div class="muted" style="padding:14px 0;font-size:13px">
-            ${data && data.reason === "no_salesperson_record"
-              ? "Votre compte n est pas relie a une fiche commercial : aucune remuneration a afficher."
-              : "Remuneration indisponible — demarrez l API pour la calculer."}</div>`;
-          return;
-        }
-
-        const l = data.line;
-        const m = (n) => KG.fmt.money(Number(n) || 0);
-        const isCurrent = (payMonth.value || nowMonth) === nowMonth;
-        document.getElementById("payPeriod").textContent =
-          new Date((payMonth.value || nowMonth) + "-01")
-            .toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
-
-        box.innerHTML = `
-          <div class="kc-pay-total">${m(l.total)}</div>
-          <div class="muted" style="font-size:12.5px">
-            ${l.locked ? "Montant figé — mois clôturé" : "Estimation — le mois n est pas clôturé"}
-          </div>
-          <div class="kc-pay-lines">
-            <div class="kc-pay-line"><span class="grow">Salaire fixe</span><b>${m(l.salary_base)}</b></div>
-            <div class="kc-pay-line"><span class="grow">Commissions (Art. 3)</span><b>${m(l.commission)}</b></div>
-            <div class="kc-pay-line"><span class="grow">Bonus du mois (Art. 4)</span><b>${m(l.bonus)}</b></div>
-          </div>
-          <div class="kc-pay-sum">
-            <span class="muted" style="font-size:13px">${l.locked ? "Rémunération" : "Rémunération estimée"}</span>
-            <b style="font-family:var(--font-display);font-size:20px;color:var(--brand)">${m(l.total)}</b>
-          </div>
-          <div class="kc-pay-lines" style="margin-top:14px">
-            <div class="kc-pay-line"><span class="grow">Ventes du mois</span><b>${l.sales_count}</b></div>
-            <div class="kc-pay-line"><span class="grow">Chiffre d affaires</span><b>${m(l.revenue)}</b></div>
-          </div>
-          ${l.bonus_next && !l.locked
-            ? `<div class="kc-pay-note">Encore ${l.bonus_next.sales - l.sales_count} vente(s) ce mois-ci
-                 pour atteindre le bonus de ${m(l.bonus_next.bonus)}${
-                   l.bonus_next.extra ? " + " + l.bonus_next.extra : ""}.</div>`
-            : ""}`;
-      }
-      payMonth.addEventListener("change", loadPay);
-      loadPay();
-
       // Monthly bonus ladder (Art. 4)
       const bonuses = (KG.contract && KG.contract.bonuses) || [];
-      // NOTE : `me.sales` est le cumul depuis la creation du compte, pas le mois.
-      // Cette echelle sert donc de REPERE de progression ; le bonus reellement
-      // du est celui de la carte « Ma remuneration » ci-dessus, calcule par le
-      // serveur sur les ventes DU MOIS, conformement a l Art. 4.
       const sold = me.sales || 0;
       const current = [...bonuses].reverse().find(b => sold >= b.sales);
       const next = bonuses.find(b => sold < b.sales);
