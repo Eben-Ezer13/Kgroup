@@ -225,7 +225,11 @@
     async role() { const p = await this.profile(); return (p && p.role) || "admin"; },
 
     /* Where a given role should land after login. */
-    homeForRole(role) { return role === "salesperson" ? "salesperson.html" : "dashboard.html"; },
+    homeForRole(role) {
+      if (role === "salesperson") return "salesperson.html";
+      if (role === "relation_client") return "clients.html";
+      return "dashboard.html";
+    },
 
     /* Look up who an invite is for (works before sign-up). */
     async inviteInfo(code) {

@@ -583,6 +583,14 @@
 
     // Notifications dropdown — opening it marks everything as seen
     const dd = $("#notifDropdown");
+    async function refreshNotifications() {
+      if (!window.KGTraining || !window.KG_API_CONFIGURED) return;
+      const latest = await window.KGTraining.notifications(20);
+      if (!latest) return;
+      window.KG.teamNotifications = latest;
+      buildNotifications();
+      renderNotifs();
+    }
     function markNotifsSeen() {
       const top = (window.KG.notifications || [])[0];
       if (top) localStorage.setItem("kg-seen-notif-id", top.id);
@@ -591,8 +599,9 @@
       $(".ping")?.remove();
       document.querySelector('[data-nav="notifications"] .nav-badge')?.remove();
     }
-    $("#notifBtn")?.addEventListener("click", (e) => {
+    $("#notifBtn")?.addEventListener("click", async (e) => {
       e.stopPropagation();
+      await refreshNotifications();
       dd.classList.toggle("open");
       if (dd.classList.contains("open")) markNotifsSeen();
     });
@@ -604,7 +613,14 @@
     });
 
     // Visiting a section via its nav item clears that section's badge
-    $('[data-nav="notifications"]')?.addEventListener("click", markNotifsSeen);
+    $('[data-nav="notifications"]')?.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (!dd) return;
+      refreshNotifications();
+      dd.classList.add("open");
+      markNotifsSeen();
+    });
+    if (window.KG_API_CONFIGURED) setInterval(refreshNotifications, 60_000);
     $('[data-nav="challenges"]')?.addEventListener("click", () =>
       setSeen("chal", (window.KG.challenges || []).length));
 
@@ -985,6 +1001,12 @@
       // --- Role guard: keep salespersons out of admin-only pages & vice versa ---
       const role = await window.KGAuth.role();
       window.KG_ROLE = role;
+      if (role === "relation_client") {
+        const allowedPage = ["clients", "settings", "formation", "challenges", "ranking"].includes(document.body.dataset.page);
+        if (document.body.hasAttribute("data-admin-only") || document.body.hasAttribute("data-salesperson-only") || !allowedPage) {
+          window.location.replace("clients.html"); return;
+        }
+      }
       if (document.body.hasAttribute("data-admin-only") && role !== "admin") {
         window.location.replace("salesperson.html"); return;
       }
@@ -993,9 +1015,6 @@
       }
       // Un charge de relation client n'a pas de tableau de bord commercial :
       // sa page d'accueil naturelle est le portefeuille client.
-      if (role === "relation_client" && document.body.dataset.page === "dashboard") {
-        window.location.replace("clients.html"); return;
-      }
     }
     // --- Hydrate window.KG with live DB rows when the API is reachable ---
     if (window.KGData) { try { await window.KGData.hydrate(); } catch (e) { console.warn(e); } }
