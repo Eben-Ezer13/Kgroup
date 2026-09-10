@@ -99,7 +99,9 @@
       $("settingsAvatar").innerHTML = avatar(me, 72);
       $("pName").textContent  = me.name || "—";
       $("pEmail").textContent = me.email || "—";
-      $("pRole").textContent  = (window.KG_ROLE === "salesperson") ? "Salesperson" : "Administrator";
+      $("pRole").textContent  = window.KG_ROLE === "relation_client"
+        ? "Relation client / Commercial"
+        : window.KG_ROLE === "salesperson" ? "Salesperson" : "Administrator";
       $("fName").value = me.name || "";
       $("fCity").value = me.city && me.city !== "—" ? me.city : "";
 

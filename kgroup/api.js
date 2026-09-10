@@ -227,7 +227,7 @@
     /* Where a given role should land after login. */
     homeForRole(role) {
       if (role === "salesperson") return "salesperson.html";
-      if (role === "relation_client") return "clients.html";
+      if (role === "relation_client") return "salesperson.html";
       return "dashboard.html";
     },
 
@@ -640,7 +640,7 @@
         } catch (_) { /* la formation ne doit jamais casser le tableau de bord */ }
 
         // Recent-activity feed: a salesperson sees their own sales, an admin the team's.
-        const actSrc = (window.KG_ROLE === "salesperson") ? mySales : (sales || []);
+        const actSrc = (["salesperson", "relation_client"].includes(window.KG_ROLE)) ? mySales : (sales || []);
         KG.activity = actSrc.slice(0, 6).map(s => ({
           icon: "bag",
           title: "Closed a sale — " + (s.product || "perfume") + (s.customer ? " · " + s.customer : ""),

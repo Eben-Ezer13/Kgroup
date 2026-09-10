@@ -213,7 +213,7 @@
 
   function initTutorial() {
     if (document.getElementById("tutorialModal")) return;   // build once
-    const role = window.KG_ROLE === "salesperson" ? "salesperson" : "admin";
+    const role = ["salesperson", "relation_client"].includes(window.KG_ROLE) ? "salesperson" : "admin";
     const steps = TUTORIAL[role];
     let idx = 0;
 
@@ -314,7 +314,7 @@
   // 'dashboard' and 'notifications' hrefs are resolved per-role at render time.
   const NAV = [
     { key: "dashboard",    label: "Dashboard",    icon: "grid",   group: "Main",     roles: ["admin","salesperson","relation_client"] },
-    { key: "sales",        label: "Sales",        icon: "bag",    group: "Main",     roles: ["admin","salesperson"], href: "sales.html" },
+    { key: "sales",        label: "Sales",        icon: "bag",    group: "Main",     roles: ["admin","salesperson","relation_client"], href: "sales.html" },
     { key: "salespersons", label: "Salespersons", icon: "users",  group: "Main",     roles: ["admin"],               href: "salespersons.html" },
     { key: "ranking",      label: "Rankings",     icon: "trophy", group: "Main",     roles: ["admin","salesperson","relation_client"], href: "ranking.html" },
     { key: "challenges",   label: "Challenges",   icon: "flag",   group: "Main",     roles: ["admin","salesperson","relation_client"], href: "challenges.html" },
@@ -323,7 +323,6 @@
     { key: "remuneration", label: "Payroll",      icon: "dollar", group: "Insights", roles: ["admin"],               href: "remuneration.html" },
     { key: "rewards",      label: "Rewards",      icon: "gift",   group: "Insights", roles: ["admin","salesperson","relation_client"], href: "challenges.html#rewards" },
     { key: "reports",      label: "Reports",      icon: "file",   group: "Insights", roles: ["admin"],               href: "reports.html" },
-    { key: "notifications",label: "Notifications",icon: "bell",   group: "Insights", roles: ["admin","salesperson","relation_client"] },
     { key: "settings",     label: "Settings",     icon: "gear",   group: "System",   roles: ["admin","salesperson","relation_client"], href: "settings.html" },
   ];
 
@@ -339,7 +338,7 @@
     const me = KG.me || { name: "Admin", initials: "AD" };
     const appRole = window.KG_ROLE || "admin";                 // 'admin' | 'salesperson'
     const role = body.dataset.role || (appRole === "salesperson" ? "Salesperson" : "Administrator");
-    const home = appRole === "salesperson" ? "salesperson.html" : "dashboard.html";
+    const home = ["salesperson", "relation_client"].includes(appRole) ? "salesperson.html" : "dashboard.html";
 
     // Resolve role-specific hrefs, then keep only items this role may see
     const visibleNav = NAV
@@ -413,17 +412,6 @@
           </div>
           <button class="icon-btn" id="helpBtn" title="${tutL("help")}">${icon("help")}</button>
           <button class="icon-btn" id="themeBtn" title="Toggle theme"><span data-theme-ico>${icon("moon")}</span></button>
-          <div class="dropdown" id="notifDropdown">
-            <button class="icon-btn" id="notifBtn" title="Notifications">${icon("bell")}${badgeFor("notifications") ? '<span class="ping"></span>' : ""}</button>
-            <div class="dropdown-panel">
-              <div class="dropdown-head">
-                <strong>Notifications</strong>
-                <a href="#" class="link" id="markAll">Mark all read</a>
-              </div>
-              <div class="dropdown-list" id="notifList"></div>
-              <div class="dropdown-foot"><a href="#" class="link">View all activity</a></div>
-            </div>
-          </div>
           ${avatar(me, 42)}
         </header>
         <div class="content" id="content"></div>
@@ -1002,15 +990,15 @@
       const role = await window.KGAuth.role();
       window.KG_ROLE = role;
       if (role === "relation_client") {
-        const allowedPage = ["clients", "settings", "formation", "challenges", "ranking"].includes(document.body.dataset.page);
-        if (document.body.hasAttribute("data-admin-only") || document.body.hasAttribute("data-salesperson-only") || !allowedPage) {
+        const allowedPage = ["clients", "settings", "formation", "challenges", "ranking", "dashboard", "sales"].includes(document.body.dataset.page);
+        if (document.body.hasAttribute("data-admin-only") || !allowedPage) {
           window.location.replace("clients.html"); return;
         }
       }
       if (document.body.hasAttribute("data-admin-only") && role !== "admin") {
         window.location.replace("salesperson.html"); return;
       }
-      if (document.body.hasAttribute("data-salesperson-only") && role !== "salesperson") {
+      if (document.body.hasAttribute("data-salesperson-only") && !["salesperson", "relation_client"].includes(role)) {
         window.location.replace("dashboard.html"); return;
       }
       // Un charge de relation client n'a pas de tableau de bord commercial :
